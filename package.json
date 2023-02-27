@@ -3,6 +3,7 @@
     "tailwindcss": "^3.1.2"
   },
   "dependencies": {
+    "lighthouse": "^10.0.1",
     "tiny-slider": "^2.9.4"
   }
 }
