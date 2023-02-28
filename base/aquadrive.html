@@ -6,7 +6,10 @@
         {{template "nav" .}}
         <div
             class="flex grow flex-col p-5 lg:p-0 items-center lg:flex-row gap-10 lg:mx-24 text-left backdrop-saturate-75 rounded-md">
-            <img class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2 rounded-md" src="/assets/image/AQUADRIVE.jpg" alt="">
+            <picture class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2">
+                <source srcset="/assets/image/avif/AQUADRIVE.avif" type="image/avif">
+                <img class="rounded-md" src="/assets/image/jpg/AQUADRIVE.jpg" alt="">
+            </picture>
             <div
                 class="flex flex-col gap-10 text-left items-center justify-start basis-1/2 font-thin mx-10 lg:mx-0 text-lg text-black">
                 <h1 class="text-6xl font-serif capitalize text-center">Aquadrive</h1>

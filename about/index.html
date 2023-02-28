@@ -31,7 +31,11 @@
         
 <div x-data="{dropdown: false}" id="nav"
     class="flex top-0 left-0 z-50 font-sans bg-gradient-to-tr from-sky-900 to-blue-900 font-bold text-slate-100 flex-wrap text-lg flex-initial justify-around lg:justify-start items-center gap-x-10 gap-y-5">
-    <a href="/" class="w-1/3 lg:w-1/12 h-auto my-5 order-first"><img class="invert" src="/assets/image/logo.webp" alt=""></a>
+    <a href="/" class="w-1/3 lg:w-1/12 h-auto my-5 order-first">
+        <picture>
+            <img class="invert" src="/assets/image/webp/logo.webp" alt="">
+        </picture>
+    </a>
     <div x-cloak :class="$store.menu ? 'flex' : 'hidden lg:flex'" id="navlinks" class="order-last flex-wrap lg:basis-auto basis-full items-center justify-center mb-5 lg:-mb-5 lg:-order-last gap-5 lg:gap-10">
         <div class="flex-initial">
             <a href="/about">About</a>
@@ -143,7 +147,10 @@
         <div
             class="flex grow flex-col p-5 lg:p-0 items-center justify-center lg:flex-row gap-10 lg:mx-24 text-left backdrop-saturate-75 rounded-md">
             <div class="lg:basis-1/3 w-full h-auto min-w-0">
-                <img class="rounded-md" src="/assets/image/about.jpg" alt="">
+                <picture>
+                    <source srcset="/assets/image/avif/about.avif" type="image/avif">
+                    <img  class="rounded-md" src="/assets/image/jpg/about.jpg" alt="">
+                </picture>
             </div>
             <div
                 class="flex flex-col gap-10 text-left items-center justify-start basis-1/2 font-thin text-lg text-black">
@@ -171,8 +178,11 @@
                     mission. ADR’s growth can only be attributed to its non-negotiable "Customer First" approach
                     together with its commitment to excellence.</p>
             </div>
-            <img class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2 rounded-md order-first lg:order-last"
-                src="/assets/image/laugh.jpg" alt="">
+            <picture class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2 order-first lg:order-last">
+                <source srcset="/assets/image/avif/laugh.avif" alt="">
+                <img class="rounded-md"
+                    src="/assets/image/jpg/laugh.jpg" alt="">
+            </picture>
         </div>
         
 <div id="contact"

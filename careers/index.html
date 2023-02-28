@@ -31,7 +31,11 @@
         
 <div x-data="{dropdown: false}" id="nav"
     class="flex top-0 left-0 z-50 font-sans bg-gradient-to-tr from-sky-900 to-blue-900 font-bold text-slate-100 flex-wrap text-lg flex-initial justify-around lg:justify-start items-center gap-x-10 gap-y-5">
-    <a href="/" class="w-1/3 lg:w-1/12 h-auto my-5 order-first"><img class="invert" src="/assets/image/logo.webp" alt=""></a>
+    <a href="/" class="w-1/3 lg:w-1/12 h-auto my-5 order-first">
+        <picture>
+            <img class="invert" src="/assets/image/webp/logo.webp" alt="">
+        </picture>
+    </a>
     <div x-cloak :class="$store.menu ? 'flex' : 'hidden lg:flex'" id="navlinks" class="order-last flex-wrap lg:basis-auto basis-full items-center justify-center mb-5 lg:-mb-5 lg:-order-last gap-5 lg:gap-10">
         <div class="flex-initial">
             <a href="/about">About</a>
@@ -141,7 +145,10 @@
 </div>
 
         <div class="flex grow flex-col p-5 lg:p-0 items-center lg:flex-row gap-10 lg:mx-24 text-left backdrop-saturate-75 rounded-md">
-            <img class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2 rounded-md" src="/assets/image/careers.jpg" alt="">
+            <picture class="lg:basis-1/2 object-fit lg:w-1/2 lg:h-1/2 ">
+                <source srcset="/assets/image/avif/careers.avif" type="image/avif">
+                <img class="rounded-md" src="/assets/image/jpg/careers.jpg" alt="">
+            </picture>
             <div class="flex flex-col gap-10 text-left items-center justify-start basis-1/2 font-thin mx-10 lg:mx-0 text-lg text-black">
                 <h1 class="text-6xl font-serif capitalize text-center">Careers</h1>
                 <p>ADR Power Systems offers best-in-class benefits to ensure the
