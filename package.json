@@ -10,5 +10,8 @@
     "alpinejs": "^3.11.1",
     "animate.css": "^4.1.1",
     "scrollbooster": "^3.0.2"
+  },
+  "scripts": {
+    "build": "webpack"
   }
 }
