@@ -6,9 +6,12 @@
     <div class="flex overflow-x-hidden flex-col bg-gradient-to-tr from-sky-700 to-blue-900">
         {{template "nav" .}}
         <div class="flex-initial flex justify-center h-screen w-screen relative">
-            <img src="/assets/image/ronan.jpeg"
-                class="absolute  w-full h-full lg:h-5/6 brightness-50 object-cover z-10">
-            </img>
+            <picture class="absolute  w-full h-full lg:h-5/6 z-10">
+                <source srcset="/assets/image/avif/ronan.avif" type="image/avif">
+                <img src="/assets/image/ronan.jpeg"
+                    class="brightness-50 object-cover">
+                </img>
+            </picture>
             <div id="viewport" class="flex flex-col z-20 w-full justify-start gap-10">
                 <div class="flex flex-col lg:flex-row justify-center items-center h-4/6 z-20 basis-1/2">
                     <span
@@ -30,55 +33,82 @@
                         <a href="/transmissions?q=ZF%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="w-1/3" src="/assets/image/zf.png" alt="">
+                                <picture class="w-1/3">
+                                    <source srcset="/assets/image/avif/zf.avif">
+                                    <img src="/assets/image/zf.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/inboard_engines?q=Baudouin%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img src="/assets/image/baudouin.png" alt="">
+                                <picture>
+                                    <source srcset="/assets/image/avif/baudouin.avif">
+                                    <img src="/assets/image/baudouin.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/waterjets?q=Alamarin-Jet%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="object-cover" src="/assets/image/alamarinjet.png" alt="">
+                                <picture class="object-cover">
+                                    <source srcset="/assets/image/avif/alamarinjet.avif">
+                                    <img src="/assets/image/alamarinjet.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/outboard_engines?q=Neander%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 object-contain" src="/assets/image/dtorque.jpg" alt="">
+                                <picture class="w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 object-contain">
+                                    <source srcset="/assets/image/avif/dtorque.avif">
+                                    <img class="object-contain" src="/assets/image/dtorque.jpg" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/outboard_engines?q=OXE%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img src="/assets/image/OXE_logo.BlackOrange.png" alt="">
+                                <picture>
+                                    <source srcset="/assets/image/avif/OXE_logo.BlackOrange.avif">
+                                    <img src="/assets/image/OXE_logo.BlackOrange.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/glendinning">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="aspect-video object-cover" src="/assets/image/glendinning.webp" alt="">
-                            </div>
+                                <picture class="aspect-video object-cover">
+                                    <source srcset="/assets/image/avif/glendinning.avif">
+                                    <img src="/assets/image/glendinning.webp" alt="">
+                                </div>
+                                </picture>
                         </a>
                         <a href="/generators?q=Kohler%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img src="/assets/image/kohler.png" alt="">
+                                <picture>
+                                    <source srcset="/assets/image/avif/kohler.avif">
+                                    <img src="/assets/image/kohler.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/generators?q=Northern%20Lights%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="object-contain" src="/assets/image/northern_lights.png" alt="">
+                                <picture class="object-contain">
+                                    <source srcset="/assets/image/avif/northern_lights.avif">
+                                    <img src="/assets/image/northern_lights.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/inboard_engines?q=Scania%20">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
-                                <img class="object-contain" src="/assets/image/scania.png" alt="">
+                                <picture class="object-contain">
+                                    <source srcset="/assets/image/avif/scania.avif">
+                                    <img src="/assets/image/scania.png" alt="">
+                                </picture>
                             </div>
                         </a>
                         <a href="/caterpillar">
