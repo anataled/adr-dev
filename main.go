@@ -120,8 +120,12 @@ func main() {
 	watch := flag.Bool("w", false, "watch directory")
 	flag.Parse()
 
+	if _, err := os.Stat(*out); os.IsNotExist(err) {
+		os.Mkdir(*out, 0755)
+	}
+
 	if !*watch {
-		build("", "", *out)
+		build("base", "partials", *out)
 		return
 	}
 
