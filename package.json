@@ -17,6 +17,6 @@
     "scrollbooster": "^3.0.2"
   },
   "scripts": {
-    "build": "go run main.go -out dist && webpack && tailwind -i ./src/in.css -o ./dist/main.css"
+    "build": "go run main.go -out dist && webpack && tailwind --minify -i ./src/in.css -o ./dist/main.css"
   }
 }
