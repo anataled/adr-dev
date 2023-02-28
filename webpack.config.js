@@ -3,7 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   plugins: [
-    new CopyWebpackPlugin({patterns: [{from: 'assets', to: 'assets'}] })
+    new CopyWebpackPlugin({patterns: [{from: 'assets', to: 'assets'}, {from: 'src/animate.min.css'}] })
   ],
   entry: {
     scroll: './src/scroll.js',
