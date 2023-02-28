@@ -4,8 +4,8 @@ var width = document.getElementById('slider').scrollWidth;
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-progress = 0
-flag = true
+var progress = 0
+var flag = true
 document.addEventListener("touchstart", function (e) {
     var element = document.getElementById('slider');
 
