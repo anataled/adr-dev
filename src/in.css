@@ -1,14 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;700&family=Merriweather:wght@300;400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap');
-[x-cloak] { display: none !important; }
+@font-face {
+  font-family: 'Merriweather Sans';
+  src: url('/assets/font/merriweathersans.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Merriweather';
+  src: url('/assets/font/merriweather.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Cutive Mono';
+  src: url('/assets/font/cutivemono.woff2') format('woff2');
+}
+
+[x-cloak] {
+  display: none !important;
+}
 
 img {
   image-rendering: -webkit-optimize-contrast;
 }
 
 html {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Chrome, Safari and Opera */
@@ -17,25 +32,42 @@ html {
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 .grid-bg {
- --color-v: transparent;
- --color: grey;
- --image: url('/assets/image/webp/g1.webp');
+  --color-v: transparent;
+  --color: grey;
 
-    background:
-        radial-gradient(circle, transparent 40%, var(--color-v) 75%),
-        linear-gradient(to right, var(--color), var(--color)),
-        var(--image);
+  background:
+    radial-gradient(circle, transparent 40%, var(--color-v) 75%),
+    linear-gradient(to right, var(--color), var(--color));
     background-position: center center;
     background-size: cover;
     background-blend-mode:
-        var(--blend-top, normal),
-        var(--blend-bottom, multiply),
-        normal;
+    var(--blend-top, normal),
+    var(--blend-bottom, multiply),
+    normal;
+}
+
+.grid-bg.visible {
+  --color-v: transparent;
+  --color: grey;
+  --image: url('/assets/image/webp/g1.webp');
+
+  background:
+    radial-gradient(circle, transparent 40%, var(--color-v) 75%),
+    linear-gradient(to right, var(--color), var(--color)),
+    var(--image);
+    background-position: center center;
+    background-size: cover;
+    background-blend-mode:
+    var(--blend-top, normal),
+    var(--blend-bottom, multiply),
+    normal;
 }
 
 @tailwind base;
