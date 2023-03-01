@@ -42,18 +42,11 @@ html {
   --color-v: transparent;
   --color: grey;
 
-  background:
-    radial-gradient(circle, transparent 40%, var(--color-v) 75%),
-    linear-gradient(to right, var(--color), var(--color));
-    background-position: center center;
-    background-size: cover;
-    background-blend-mode:
-    var(--blend-top, normal),
-    var(--blend-bottom, multiply),
-    normal;
+  background: var(--color-v);
 }
 
 .grid-bg.visible {
+  display: auto;
   --color-v: transparent;
   --color: grey;
   --image: url('/assets/image/webp/g1.webp');
@@ -68,6 +61,8 @@ html {
     var(--blend-top, normal),
     var(--blend-bottom, multiply),
     normal;
+  animation: fadeInUp; /* referring directly to the animation's @keyframe declaration */
+  animation-duration: 0.5s;
 }
 
 @tailwind base;
