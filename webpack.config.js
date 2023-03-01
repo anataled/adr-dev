@@ -13,4 +13,5 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },
+  stats: 'errors-only',
 };

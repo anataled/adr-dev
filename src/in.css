@@ -24,7 +24,7 @@ html {
 .grid-bg {
  --color-v: transparent;
  --color: grey;
- --image: url('/assets/image/g1.jpg');
+ --image: url('/assets/image/webp/g1.webp');
 
     background:
         radial-gradient(circle, transparent 40%, var(--color-v) 75%),

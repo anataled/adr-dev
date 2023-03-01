@@ -27,7 +27,7 @@ type content struct {
 	} `toml:"pages"`
 }
 
-func build(base, partial, out string) error {
+func build(base, partial, out, css string) error {
 	basefs := os.DirFS(base)
 	partialfs := os.DirFS(partial)
 
@@ -40,6 +40,12 @@ func build(base, partial, out string) error {
 	if err != nil {
 		return err
 	}
+
+	cssbs, err := os.ReadFile(path.Join(out, css))
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(cssbs)[:10])
 
 	var partialnames []string
 	for _, f := range partials {
@@ -82,7 +88,11 @@ func build(base, partial, out string) error {
 				return err
 			}
 
-			tmpl.ExecuteTemplate(of, strings.Split(fname, ".")[0], nil)
+			tmpl.ExecuteTemplate(of, strings.Split(fname, ".")[0], struct {
+				CSS template.CSS
+			}{
+				template.CSS(cssbs),
+			})
 			of.Close()
 			continue
 		}
@@ -104,9 +114,10 @@ func build(base, partial, out string) error {
 					Data  string "toml:\"data\""
 					Desc  string "toml:\"desc\""
 				}
+				CSS   template.CSS
 				Pages content
 			}{
-				page, c,
+				page, template.CSS(cssbs), c,
 			}
 			tmpl.ExecuteTemplate(f, "content", d)
 			f.Close()
@@ -117,6 +128,7 @@ func build(base, partial, out string) error {
 
 func main() {
 	out := flag.String("out", "", "output dir")
+	css := flag.String("css", "main.css", "input css file")
 	watch := flag.Bool("w", false, "watch directory")
 	flag.Parse()
 
@@ -125,7 +137,7 @@ func main() {
 	}
 
 	if !*watch {
-		build("base", "partials", *out)
+		build("base", "partials", *out, *css)
 		return
 	}
 
@@ -153,7 +165,7 @@ func main() {
 					return
 				}
 				start := time.Now()
-				err := build("base", "partials", *out)
+				err := build("base", "partials", *out, *css)
 				if err != nil {
 					log.Fatalln(err)
 				}
