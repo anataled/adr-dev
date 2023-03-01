@@ -60,7 +60,7 @@
                         <picture class="animate__animated animate__fadeIn">
                             <source :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg/gi, 'avif'))" type="image/avif">
                             <img class="rounded inline object-center max-h-38 w-auto max-w-full"
-                                :src="'/assets/image/product/'+entry.image.split('.').pop()+'+entry.image" alt="">
+                                :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
                         </picture>
                     </div>
                     <div x-data="
@@ -72,9 +72,9 @@
                 }" class="flex-initial basis-1/3 text-center justify-around gap-10 flex flex-col">
                         <div class="flex items-center justify-center gap-5 text-slate-700">
                             <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
-                            <i @animationend="$event.target.classList.remove(`animate__animated`, 'animate__rotateIn');"
-                                @click="desc = !desc"
-                                :class="desc ? 'fa-circle-up animate__animated animate__rotateIn' : 'fa-circle-down animate__animated animate__rotateIn'"
+                            <i x-on:animationend="$event.target.classList.remove(`animate__animated`, 'animate__rotateIn');"
+                                x-on:click="desc = !desc"
+                                :class="desc ? 'fa-circle-up' : 'fa-circle-down'"
                                 class="text-2xl text-emerald-500 fa-solid hover:cursor-pointer"></i>
                         </div>
                         <span x-show="desc" x-transition class="text-md font-thin text-slate-700 text-justify"

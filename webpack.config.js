@@ -7,7 +7,9 @@ module.exports = {
   ],
   entry: {
     scroll: './src/scroll.js',
-    index: './src/index.js'
+    index: './src/index.js',
+    fa: './src/fa.js',
+    count: './src/count.js',
   },
   output: {
     filename: '[name].js',
