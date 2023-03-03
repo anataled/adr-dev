@@ -4,13 +4,15 @@
     "compression-webpack-plugin": "^10.0.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
+    "fly": "^4.5.5",
     "html-inline-script-webpack-plugin": "^3.1.0",
     "lighthouse": "^10.0.1",
     "postcss": "^8.4.21",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.2.7",
     "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.0.1",
+    "wrangler": "^2.12.0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.3.0",
@@ -19,6 +21,8 @@
     "scrollbooster": "^3.0.2"
   },
   "scripts": {
-    "build": "tailwind --minify -i ./src/in.css -o ./dist/main.css && go run main.go -out dist && webpack"
+    "build": "tailwind --minify -i ./src/in.css -o ./dist/main.css && go run main.go -out dist && webpack",
+    "deploydb": "wrangler publish",
+    "devdb": "wrangler dev --local"
   }
 }
