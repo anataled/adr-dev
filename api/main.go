@@ -11,7 +11,6 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/api/option"
@@ -21,6 +20,7 @@ import (
 const (
 	schema = `CREATE TABLE products (
     brand text,
+	category text,
     name text,
 	desc text NULL,
     props text NULL,
@@ -28,11 +28,11 @@ const (
     files text NULL,
     ratings text NULL
 );`
-	numc = 7
+	numc = 8
 )
 
 type product struct {
-	Brand, Name, Desc, Props, Image, Files, Ratings sql.NullString
+	Brand, Category, Name, Desc, Props, Image, Files, Ratings sql.NullString
 }
 
 func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
@@ -52,7 +52,7 @@ func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
 		if err != nil {
 			return fmt.Errorf("error beginning tx: %w", err)
 		}
-		insert, err := tx.PrepareContext(ctx, "INSERT INTO products (brand, name, desc, props, image, files, ratings) VALUES (?, ?, ?, ?, ?, ?, ?)")
+		insert, err := tx.PrepareContext(ctx, "INSERT INTO products (brand, category, name, desc, props, image, files, ratings) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
 		if err != nil {
 			return fmt.Errorf("error preparing insert stmt: %w", err)
 		}
@@ -102,13 +102,15 @@ func main() {
 	if err != nil {
 		log.Fatalln("error preparing select stmt:", err)
 	}
+	selp, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE category = ?")
+	if err != nil {
+		log.Fatalln("error preparing select product stmt:", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
-	mux := mux.NewRouter()
 
 	withCtx := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -134,11 +136,37 @@ func main() {
 		w.Write(bs)
 	})
 
-	mux.Handle("/", withCtx(index))
+	ptype := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ps []product
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+
+		v := r.URL.Query()
+		cat := v.Get("q")
+		if cat == "" {
+			http.Error(w, "provide a category", http.StatusBadRequest)
+			return
+		}
+
+		err := selp.SelectContext(r.Context(), &ps, cat)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error selecting:", err)
+			return
+		}
+		bs, err := json.Marshal(ps)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error marshalling:", err)
+			return
+		}
+		w.Write(bs)
+	})
+
+	http.Handle("/api/all", withCtx(index))
+	http.Handle("/api/category", withCtx(ptype))
 
 	srv := &http.Server{
 		Addr:         ":" + port,
-		Handler:      mux,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
