@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -89,6 +88,11 @@ func main() {
 		log.Fatalln("error making table:", err)
 	}
 
+	_, err = db.ExecContext(ctx, "CREATE INDEX name_idx ON products(name)")
+	if err != nil {
+		log.Fatalln("error creating name index:", err)
+	}
+
 	shtsrv, err := sheets.NewService(ctx, option.WithAPIKey(os.Getenv("SHEETS_KEY")))
 	if err != nil {
 		log.Fatalln("error creating sheet service:", err)
@@ -133,13 +137,10 @@ func main() {
 	mux.Handle("/", withCtx(index))
 
 	srv := &http.Server{
-		Addr:                         ":" + port,
-		Handler:                      mux,
-		DisableGeneralOptionsHandler: false,
-		TLSConfig:                    &tls.Config{},
-		ReadTimeout:                  15 * time.Second,
-		ReadHeaderTimeout:            0,
-		WriteTimeout:                 10 * time.Second,
+		Addr:         ":" + port,
+		Handler:      mux,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 10 * time.Second,
 	}
 
 	err = update(ctx, db, shtsrv)
@@ -160,10 +161,10 @@ func main() {
 			log.Println("updating...")
 			err := update(ctx, db, shtsrv)
 			if err != nil {
-				cancel()
-				log.Fatalln("error updating:", err)
+				log.Println("error updating:", err)
+			} else {
+				log.Println("done updating!")
 			}
-			log.Println("done updating!")
 		}
 
 	}()
