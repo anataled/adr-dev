@@ -3,8 +3,11 @@ package main
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -31,8 +34,33 @@ const (
 	numc = 8
 )
 
+//go:embed base/* partials/*
+var tmplfs embed.FS
+
+//go:embed assets/*
+var assets embed.FS
+
+var (
+	tmpls = make(map[string]*template.Template)
+)
+
 type product struct {
 	Brand, Category, Name, Desc, Props, Image, Files, Ratings sql.NullString
+}
+
+func init() {
+	bases, err := fs.ReadDir(tmplfs, "base")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, base := range bases {
+		t, err := template.ParseFS(tmplfs, "partials/*", "base/"+base.Name())
+		if err != nil {
+			log.Fatalln(err)
+		}
+		tmpls[base.Name()] = t
+	}
 }
 
 func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
@@ -164,6 +192,8 @@ func main() {
 
 	http.Handle("/api/all", withCtx(index))
 	http.Handle("/api/category", withCtx(ptype))
+
+	http.Handle("/assets", http.FileServer(http.FS(assets)))
 
 	srv := &http.Server{
 		Addr:         ":" + port,
