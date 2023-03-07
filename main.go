@@ -34,15 +34,35 @@ const (
 	numc = 8
 )
 
+//go:generate ./node_modules/.bin/tailwind --minify -i ./src/in.css -o ./assets/css/main.min.css
+
 //go:embed base/* partials/*
 var tmplfs embed.FS
 
 //go:embed assets/*
 var assets embed.FS
 
+type templateHandler map[string]*template.Template
+
 var (
-	tmpls = make(map[string]*template.Template)
+	tmpls = make(templateHandler)
 )
+
+func (th templateHandler) Handler(p string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t, ok := th[p+".html"]
+		if !ok {
+			http.Error(w, "page not found", http.StatusNotFound)
+			return
+		}
+		err := t.ExecuteTemplate(w, p, nil)
+		if err != nil {
+			log.Println(err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+	})
+}
 
 type product struct {
 	Brand, Category, Name, Desc, Props, Image, Files, Ratings sql.NullString
@@ -166,7 +186,7 @@ func main() {
 
 	ptype := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ps []product
-		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
 
 		v := r.URL.Query()
 		cat := v.Get("q")
@@ -190,10 +210,29 @@ func main() {
 		w.Write(bs)
 	})
 
-	http.Handle("/api/all", withCtx(index))
-	http.Handle("/api/category", withCtx(ptype))
+	http.Handle("/api/all/", withCtx(index))
+	http.Handle("/api/category/", withCtx(ptype))
 
-	http.Handle("/assets", http.FileServer(http.FS(assets)))
+	http.Handle("/assets/", http.FileServer(http.FS(assets)))
+
+	idx := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path != "/" {
+				http.NotFound(w, r)
+				return
+			}
+			h.ServeHTTP(w, r)
+		})
+	}
+
+	http.Handle("/", idx(tmpls.Handler("index")))
+	http.Handle("/careers/", tmpls.Handler("careers"))
+	http.Handle("/about/", tmpls.Handler("about"))
+	http.Handle("/aquadrive/", tmpls.Handler("aquadrive"))
+	http.Handle("/caterpillar/", tmpls.Handler("caterpillar"))
+	http.Handle("/dockmate/", tmpls.Handler("dockmate"))
+	http.Handle("/electronics/", tmpls.Handler("electronics"))
+	http.Handle("/glendinning/", tmpls.Handler("glendinning"))
 
 	srv := &http.Server{
 		Addr:         ":" + port,

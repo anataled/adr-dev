@@ -21,9 +21,9 @@ const sb = new ScrollBooster({
     emulateScroll: true,
     lockScrollOnDragDirection: 'all',
     onClick: (s, ev, mobile) => {
-        const isLink = event.target.nodeName.toLowerCase() === 'link';
+        const isLink = ev.target.nodeName.toLowerCase() === 'link';
         if (isLink) {
-            event.target.click()
+            ev.target.click()
         }
         flag = false
     },
