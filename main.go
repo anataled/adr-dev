@@ -185,14 +185,12 @@ func main() {
 			log.Println("error selecting:", err)
 			return
 		}
-		fmt.Println(ps)
 		bs, err := json.Marshal(ps)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			log.Println("error marshalling:", err)
 			return
 		}
-		fmt.Println(bs)
 		w.Write(bs)
 	})
 
@@ -213,14 +211,12 @@ func main() {
 			log.Println("error selecting:", err)
 			return
 		}
-		fmt.Println(ps)
 		bs, err := json.Marshal(ps)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			log.Println("error marshalling:", err)
 			return
 		}
-		fmt.Println(bs)
 		w.Write(bs)
 	})
 
