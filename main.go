@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"embed"
 	"encoding/json"
 	"fmt"
@@ -48,14 +47,14 @@ var (
 	tmpls = make(templateHandler)
 )
 
-func (th templateHandler) Handler(p string) http.Handler {
+func (th templateHandler) Handler(p string, d any) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t, ok := th[p+".html"]
 		if !ok {
 			http.Error(w, "page not found", http.StatusNotFound)
 			return
 		}
-		err := t.ExecuteTemplate(w, p, nil)
+		err := t.ExecuteTemplate(w, p, d)
 		if err != nil {
 			log.Println(err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -65,7 +64,18 @@ func (th templateHandler) Handler(p string) http.Handler {
 }
 
 type product struct {
-	Brand, Category, Name, Desc, Props, Image, Files, Ratings sql.NullString
+	Brand    *string `json:"brand"`
+	Category *string `json:"category"`
+	Name     *string `json:"name"`
+	Desc     *string `json:"desc"`
+	Props    *string `json:"props"`
+	Image    *string `json:"image"`
+	Files    *string `json:"files"`
+	Ratings  *string `json:"ratings"`
+}
+
+type contentp struct {
+	Title, Desc, Data, BrandInfo string
 }
 
 func init() {
@@ -175,12 +185,14 @@ func main() {
 			log.Println("error selecting:", err)
 			return
 		}
+		fmt.Println(ps)
 		bs, err := json.Marshal(ps)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			log.Println("error marshalling:", err)
 			return
 		}
+		fmt.Println(bs)
 		w.Write(bs)
 	})
 
@@ -201,12 +213,14 @@ func main() {
 			log.Println("error selecting:", err)
 			return
 		}
+		fmt.Println(ps)
 		bs, err := json.Marshal(ps)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			log.Println("error marshalling:", err)
 			return
 		}
+		fmt.Println(bs)
 		w.Write(bs)
 	})
 
@@ -225,14 +239,20 @@ func main() {
 		})
 	}
 
-	http.Handle("/", idx(tmpls.Handler("index")))
-	http.Handle("/careers/", tmpls.Handler("careers"))
-	http.Handle("/about/", tmpls.Handler("about"))
-	http.Handle("/aquadrive/", tmpls.Handler("aquadrive"))
-	http.Handle("/caterpillar/", tmpls.Handler("caterpillar"))
-	http.Handle("/dockmate/", tmpls.Handler("dockmate"))
-	http.Handle("/electronics/", tmpls.Handler("electronics"))
-	http.Handle("/glendinning/", tmpls.Handler("glendinning"))
+	http.Handle("/", idx(tmpls.Handler("index", nil)))
+	http.Handle("/careers/", tmpls.Handler("careers", nil))
+	http.Handle("/about/", tmpls.Handler("about", nil))
+	http.Handle("/aquadrive/", tmpls.Handler("aquadrive", nil))
+	http.Handle("/caterpillar/", tmpls.Handler("caterpillar", nil))
+	http.Handle("/dockmate/", tmpls.Handler("dockmate", nil))
+	http.Handle("/electronics/", tmpls.Handler("electronics", nil))
+	http.Handle("/glendinning/", tmpls.Handler("glendinning", nil))
+	http.Handle("/products/inboard_engines/", tmpls.Handler("content", contentp{
+		Title:     "Inboard Engines",
+		Desc:      "lmao",
+		Data:      "/api/category/?q=inboard",
+		BrandInfo: "",
+	}))
 
 	srv := &http.Server{
 		Addr:         ":" + port,
