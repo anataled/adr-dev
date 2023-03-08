@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -13,6 +15,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/andybalholm/brotli"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/api/option"
@@ -47,19 +50,42 @@ var (
 	tmpls = make(templateHandler)
 )
 
+type buffcloser struct {
+	bytes.Buffer
+}
+
+func (bc buffcloser) Close() error {
+	return nil
+}
+
 func (th templateHandler) Handler(p string, d any) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		var w io.WriteCloser
+		var buf buffcloser
+		rhs := r.Header.Values("Accept-Encoding")
+		for _, rh := range rhs {
+			if rh == "br" {
+				rw.Header().Add("Content-Encoding", "br")
+				w = brotli.NewWriter(&buf)
+				break
+			}
+			w = &buf
+		}
 		t, ok := th[p+".html"]
 		if !ok {
-			http.Error(w, "page not found", http.StatusNotFound)
+			http.Error(rw, "page not found", http.StatusNotFound)
 			return
 		}
 		err := t.ExecuteTemplate(w, p, d)
 		if err != nil {
 			log.Println(err)
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			http.Error(rw, "internal server error", http.StatusInternalServerError)
 			return
 		}
+		if _, ok := w.(*brotli.Writer); ok {
+			w.Close()
+		}
+		buf.WriteTo(rw)
 	})
 }
 
@@ -79,11 +105,13 @@ type contentp struct {
 }
 
 func init() {
+	log.Println("reading templates")
 	bases, err := fs.ReadDir(tmplfs, "base")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
+	log.Println("parsing templates")
 	for _, base := range bases {
 		t, err := template.ParseFS(tmplfs, "partials/*", "base/"+base.Name())
 		if err != nil {
@@ -94,11 +122,13 @@ func init() {
 }
 
 func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
+	log.Println("getting spreadsheet values")
 	sht, err := shtsrv.Spreadsheets.Values.Get(os.Getenv("SHEET_ID"), os.Getenv("SHEET_NAME")).Do()
 	if err != nil {
 		return fmt.Errorf("error getting sheet: %w", err)
 	}
 
+	log.Println("starting insert transaction")
 	for i, row := range sht.Values {
 		if i == 0 {
 			continue
