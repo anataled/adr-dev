@@ -114,10 +114,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <span x-show="entry.ratings !== undefined"
+                        <span x-show="entry.ratings !== null"
                             class="text-slate-700 font-bold uppercase">Ratings</span>
                         <div class="overflow-auto">
-                            <table x-show="entry.ratings !== undefined" class="table-fixed text-lg font-mono uppercase">
+                            <table x-show="entry.ratings !== null" class="table-fixed text-lg font-mono uppercase">
                                 <tbody>
                                     <template x-for="prop in (entry.ratings ? entry.ratings : '').split('\n')">
                                         <tr class="border-slate-500 border-y border-dotted">
