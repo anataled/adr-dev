@@ -58,7 +58,7 @@ func (bc buffcloser) Close() error {
 	return nil
 }
 
-func (th templateHandler) Handler(p string, d any) http.Handler {
+func (th templateHandler) Handler(p string, d interface{}) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var w io.WriteCloser
 		var buf buffcloser
@@ -134,7 +134,7 @@ func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
 			continue
 		}
 		if len(row) < numc {
-			row = append(row, make([]any, numc-len(row))...)
+			row = append(row, make([]interface{}, numc-len(row))...)
 		}
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
