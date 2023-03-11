@@ -31,7 +31,7 @@
         console.log(brands)
     })" class="min-h-screen flex gap-24 flex-col mb-10">
         {{template "nav" .}}
-        <div class="flex-initial flex flex-col justify-center items-center lg:mx-24 gap-14 text-center">
+        <div class="flex-initial flex justify-center items-center lg:mx-24 gap-14 text-center">
             <div class="basis-1/2 lg:w-1/2">
                 <h1 class="text-5xl font-serif capitalize basis-1/2">{{ .Title }}</h1>
                 <p class="mt-7 font-thin">{{ .Desc }}</p>
@@ -53,55 +53,33 @@
         <template x-show="filtered.length == 0">
             <h1 x-text="query"></h1>
         </template>
-        <div class="flex flex-col items-start lg:flex-row flex-wrap justify-evenly gap-5">
+        <div x-data="{ open: false }" :class="open ? 'items-start' : 'items-stretch'" class="flex flex-col lg:flex-row flex-wrap justify-evenly gap-5">
             <template x-for="entry in filtered">
                 <div class="flex w-full flex-col basis-1/3 2xl:basis-1/5 md:border gap-4 p-4">
-                    <div class="text-center basis-1/3">
+                    <div class="text-center basis-1/3 grow-0">
                         <picture class="animate__animated animate__fadeIn">
-                            <source :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg/gi, 'avif'))" type="image/avif">
+                            <source
+                                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg/gi, 'avif'))"
+                                type="image/avif">
                             <img class="rounded inline object-center max-h-38 w-auto max-w-full"
                                 :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
                         </picture>
                     </div>
-                    <div x-data="
-                {
-                    desc: false,
-                    get brandDesc() { return (brands[entry.brand] ? brands[entry.brand].description : '')},
-                    get brandTable() { return (brands[entry.brand] ? brands[entry.brand].chart.split('\n') : [] ) },
-                    get brandTableName() { return (brands[entry.brand] ? brands[entry.brand].chartName : '' )},
-                }" class="flex-initial basis-1/3 text-center justify-around gap-10 flex flex-col">
-                        <div class="flex items-center justify-center gap-5 text-slate-700">
-                            <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
-                            <i x-on:animationend="$event.target.classList.remove(`animate__animated`, 'animate__rotateIn');"
-                                x-on:click="desc = !desc"
-                                :class="desc ? 'fa-circle-up' : 'fa-circle-down'"
-                                class="text-2xl text-emerald-500 fa-solid hover:cursor-pointer"></i>
-                        </div>
-                        <span x-show="desc" x-transition class="text-md font-thin text-slate-700 text-justify"
-                            x-text="brandDesc"></span>
-                        <span x-show="desc" x-transition class="text-lg font-bold text-slate-700"
-                            x-text="brandTableName"></span>
-                        <table x-show="desc" x-transition
-                            class="text-md table-auto overflow-auto max-w-fit font-thin text-slate-700 text-left border-spacing-5 border-collapse">
-                            <tbody>
-                                <template x-for="(row, index) in brandTable">
-                                    <tr :class="index != brandTable.length-1 && 'border-b'">
-                                        <template x-for="(val, index) in row.split(':')">
-                                            <td class="p-4" :class="index != row.split(':').length-1 && 'border-r'"
-                                                x-text="val"></td>
-                                        </template>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                        <hr x-show="desc" class="mx-10">
-                        <span class="text-slate-700 uppercase font-bold">Summary</span>
+                    <div x-data="{ specs: false }"
+                        class="flex-initial basis-1/3 text-center justify-around gap-4 flex flex-col">
+                        <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
+                            <span class="text-slate-700 uppercase font-bold">Summary</span>
                         <template x-for="d in entry.desc.split('\n')">
                             <p x-text="d" class="leading-loose font-thin"></p>
                         </template>
 
-                        <span class="text-slate-700 font-bold uppercase">Specifications</span>
-                        <div class="overflow-auto">
+                        <div class="flex items-center justify-center gap-5 text-slate-700">
+                            <span class="text-slate-700 font-bold uppercase">Specifications</span>
+                        <i x-on:animationend="$event.target.classList.remove(`animate__animated`, 'animate__rotateIn');"
+                            x-on:click="specs = !specs, open = !open" :class="specs ? 'fa-circle-up' : 'fa-circle-down'"
+                            class="text-2xl text-emerald-500 fa-solid hover:cursor-pointer"></i>
+                        </div>
+                        <div x-show="specs" class="overflow-auto">
                             <table class="table-fixed w-full text-lg font-mono text-center">
                                 <tbody>
                                     <template x-for="prop in entry.props.split('\n')">
@@ -114,8 +92,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <span x-show="entry.ratings !== null"
-                            class="text-slate-700 font-bold uppercase">Ratings</span>
+                        <span x-show="entry.ratings !== null" class="text-slate-700 font-bold uppercase">Ratings</span>
                         <div class="overflow-auto">
                             <table x-show="entry.ratings !== null" class="table-fixed text-lg font-mono uppercase">
                                 <tbody>

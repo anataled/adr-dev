@@ -194,10 +194,10 @@ func main() {
 	if err != nil {
 		log.Fatalln("error preparing select product stmt:", err)
 	}
-	selb, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE brand = ?")
+	/*selb, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE brand = ?")
 	if err != nil {
 		log.Fatalln("error preparing select product stmt:", err)
-	}
+	}*/
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -210,29 +210,52 @@ func main() {
 		})
 	}
 
-	apiFunc := func(stmt *sqlx.Stmt) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			var ps []product
-			w.Header().Add("Content-Type", "application/json; charset=utf-8")
-			err := stmt.SelectContext(r.Context(), &ps)
-			if err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
-				log.Println("error selecting:", err)
-				return
-			}
-			bs, err := json.Marshal(ps)
-			if err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
-				log.Println("error marshalling:", err)
-				return
-			}
-			w.Write(bs)
-		})
-	}
+	index := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ps []product
+		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
+		err := sel.SelectContext(r.Context(), &ps)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error selecting:", err)
+			return
+		}
+		bs, err := json.Marshal(ps)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error marshalling:", err)
+			return
+		}
+		w.Write(bs)
+	})
 
-	http.Handle("/api/all/", withCtx(apiFunc(sel)))
-	http.Handle("/api/category/", withCtx(apiFunc(selp)))
-	http.Handle("/api/brand/", withCtx(apiFunc(selb)))
+	ptype := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ps []product
+		w.Header().Add("Content-Type", "application/json; charset=utf-8")
+
+		v := r.URL.Query()
+		cat := v.Get("q")
+		if cat == "" {
+			http.Error(w, "provide a category", http.StatusBadRequest)
+			return
+		}
+
+		err := selp.SelectContext(r.Context(), &ps, cat)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error selecting:", err)
+			return
+		}
+		bs, err := json.Marshal(ps)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error marshalling:", err)
+			return
+		}
+		w.Write(bs)
+	})
+
+	http.Handle("/api/all/", withCtx(index))
+	http.Handle("/api/category/", withCtx(ptype))
 
 	http.Handle("/assets/", http.FileServer(http.FS(assets)))
 
