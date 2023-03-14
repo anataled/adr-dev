@@ -1,0 +1,89 @@
+{{define "product"}}
+{{template "head" .}}
+
+<body x-data="{lightbox: '', entry: {{ .Entry }} }" :class="lightbox && 'overflow-hidden'">
+    <div class="flex gap-24 flex-col mb-10 h-screen">
+        {{template "nav" .}}
+        <div class="flex flex-col lg:flex-row flex-wrap justify-evenly">
+            <div class="text-center basis-1/3">
+                <picture @click="lightbox = !lightbox" class="animate__animated animate__fadeIn cursor-pointer">
+                    <source
+                        :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
+                        type="image/avif">
+                    <source
+                        :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
+                        type="image/webp">
+                    <img class="rounded inline object-center max-h-38 w-auto max-w-full border shadow-md"
+                        :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
+                </picture>
+            </div>
+            <div x-data="{tab: 'specs'}" class="flex-initial basis-1/3 text-center justify-around gap-4 flex flex-col">
+                <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
+                <span class="text-slate-700 uppercase font-bold">Summary</span>
+                <template x-for="d in entry.desc.split('\n')">
+                    <p x-text="d" class="leading-loose font-thin"></p>
+                </template>
+
+                <div class="flex items-center justify-evenly gap-5 text-slate-700">
+                    <span x-transition :class="tab === 'specs' && 'text-bold border-b-4 border-emerald-500'" @click="tab = 'specs'" class="text-slate-700 uppercase cursor-pointer">Specifications</span>
+                    <template x-if="entry.ratings !== ''">
+                        <span x-transition :class="tab === 'ratings' && 'text-bold border-b-4 border-emerald-500'" @click="tab = 'ratings'" class="text-slate-700 uppercase cursor-pointer">Ratings</span>
+                    </template>
+                </div>
+                <div x-show="tab === 'specs'" class="overflow-auto">
+                    <table class="table-fixed w-full text-lg font-mono text-center">
+                        <tbody>
+                            <template x-for="prop in entry.props.split('\n')">
+                                <tr class="border-slate-500 border-y border-dotted">
+                                    <template x-for="cell in prop.split('|')">
+                                        <td x-text="if (cell) { return cell.trim() }"></td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <div  x-show="tab === 'ratings'" class="overflow-auto">
+                    <table class="table-fixed text-lg font-mono uppercase">
+                        <tbody>
+                            <template x-for="prop in (entry.ratings ? entry.ratings : '').split('\n')">
+                                <tr class="border-slate-500 border-y border-dotted">
+                                    <template x-for="p in prop.split('|')">
+                                        <td colspan="5" class="p-3" x-text="p.trim()"></td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+                <span class="text-slate-700 uppercase font-bold">Datasheets</span>
+                <div class="flex gap-5 justify-center text-emerald-500">
+                    <template x-for="file in entry.files.split('\n')">
+                        <div>
+                            <i class="fa-solid fa-file-pdf"></i>&nbsp;<a target="_blank"
+                                :href="'/assets/docs/'+file+'.pdf'" x-text="file"
+                                class="hover:cursor-pointer uppercase"></a>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+        <div class="grow"></div>
+    {{template "footer" .}}
+    </div>
+    <div x-transition.opacity @click="lightbox = !lightbox" class="absolute top-0 left-0 z-50 w-full h-full bg-slate-700/90 flex justify-center items-center" x-show="lightbox">
+        <picture class="animate__animated animate__fadeIn">
+            <source
+                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
+                type="image/avif">
+            <source
+                :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
+                type="image/webp">
+            <img class="rounded inline mx-w-sm md:mx-w-md lg:max-w-6xl border shadow-md"
+                :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
+        </picture>
+    </div>
+</body>
+
+</html>
+{{end}}

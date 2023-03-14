@@ -1,0 +1,14 @@
+{{define "404"}}
+{{template "head" .}}
+
+<body x-data>
+    <div class="flex flex-col gap-16 min-h-screen">
+        {{template "nav" .}}
+        <h1 class="text-6xl font-serif capitalize text-center grow">Page Not Found</h1>
+        {{template "footer" .}}
+    </div>
+</body>
+
+</html>
+
+{{end}}

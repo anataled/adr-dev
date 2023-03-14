@@ -6,7 +6,7 @@
     { 
         search: new URLSearchParams(location.search).get('q'),
         info: {},
-        entries: [],
+        entries: {{ .Entries }},
         brands: {},
         get filtered() {
             return this.entries.filter(i => this.query.split(' ').every(v => JSON.stringify(i).toLowerCase().includes(v.toLowerCase()) ) )
@@ -19,19 +19,9 @@
             params.set(k, v);
             window.history.replaceState({}, '', `${location.pathname}?${params}`);
         }
-    }" x-init="
-    fetch('{{ .Data }}').then(res => res.json()).then(res => entries = res),
-    fetch('{{ .BrandInfo }}')
-    .then(res => res.json())
-    .then(function(a) {
-        brands = a.reduce(function(map, obj){
-            map[obj.brand] = {description: obj.description, chart: obj.chart, chartName: obj.chartName };
-            return map;
-        }, {})
-        console.log(brands)
-    })" class="min-h-screen flex gap-24 flex-col mb-10">
+    }" class="min-h-screen flex gap-24 flex-col mb-10">
         {{template "nav" .}}
-        <div class="flex-initial flex justify-center items-center lg:mx-24 gap-14 text-center">
+        <div class="flex-initial lg:flex-row flex-col flex justify-center items-center lg:mx-24 gap-14 text-center">
             <div class="basis-1/2 lg:w-1/2">
                 <h1 class="text-5xl font-serif capitalize basis-1/2">{{ .Title }}</h1>
                 <p class="mt-7 font-thin">{{ .Desc }}</p>
@@ -56,18 +46,22 @@
         <div x-data="{ open: false }" :class="open ? 'items-start' : 'items-stretch'" class="flex flex-col lg:flex-row flex-wrap justify-evenly gap-5">
             <template x-for="entry in filtered">
                 <div class="flex w-full flex-col basis-1/3 2xl:basis-1/5 md:border gap-4 p-4">
-                    <div class="text-center basis-1/3 grow-0">
+                    <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><div class="text-center basis-1/3 grow-0">
                         <picture class="animate__animated animate__fadeIn">
                             <source
-                                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg/gi, 'avif'))"
+                                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
                                 type="image/avif">
+                            <source
+                                :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
+                                type="image/webp">
                             <img class="rounded inline object-center max-h-38 w-auto max-w-full"
                                 :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
                         </picture>
                     </div>
+                    </a>
                     <div x-data="{ specs: false }"
                         class="flex-initial basis-1/3 text-center justify-around gap-4 flex flex-col">
-                        <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
+                        <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span></a>
                             <span class="text-slate-700 uppercase font-bold">Summary</span>
                         <template x-for="d in entry.desc.split('\n')">
                             <p x-text="d" class="leading-loose font-thin"></p>
@@ -92,9 +86,9 @@
                                 </tbody>
                             </table>
                         </div>
-                        <span x-show="entry.ratings !== null" class="text-slate-700 font-bold uppercase">Ratings</span>
+                        <span x-show="entry.ratings !== ''" class="text-slate-700 font-bold uppercase">Ratings</span>
                         <div class="overflow-auto">
-                            <table x-show="entry.ratings !== null" class="table-fixed text-lg font-mono uppercase">
+                            <table x-show="entry.ratings !== ''" class="table-fixed text-lg font-mono uppercase">
                                 <tbody>
                                     <template x-for="prop in (entry.ratings ? entry.ratings : '').split('\n')">
                                         <tr class="border-slate-500 border-y border-dotted">

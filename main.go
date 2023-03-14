@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
-	"io"
 	"io/fs"
 	"log"
 	"net/http"
@@ -15,7 +14,7 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/andybalholm/brotli"
+	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"google.golang.org/api/option"
@@ -25,15 +24,17 @@ import (
 const (
 	schema = `CREATE TABLE products (
     brand text,
+	bslug text,
 	category text,
     name text,
 	desc text NULL,
     props text NULL,
     image text NULL,
     files text NULL,
-    ratings text NULL
+    ratings text NULL,
+	slug text NULL
 );`
-	numc = 8
+	numc = 10
 )
 
 //go:generate ./node_modules/.bin/tailwind --minify -i ./src/in.css -o ./assets/css/main.min.css
@@ -50,47 +51,31 @@ var (
 	tmpls = make(templateHandler)
 )
 
-type buffcloser struct {
-	bytes.Buffer
-}
-
-func (bc buffcloser) Close() error {
-	return nil
-}
-
-func (th templateHandler) Handler(p string, d interface{}) http.Handler {
+func (th templateHandler) Handler(p string, d any) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		var w io.WriteCloser
-		var buf buffcloser
-		rhs := r.Header.Values("Accept-Encoding")
-		for _, rh := range rhs {
-			if rh == "br" {
-				rw.Header().Add("Content-Encoding", "br")
-				w = brotli.NewWriter(&buf)
-				break
-			}
-			w = &buf
-		}
+		var buf bytes.Buffer
 		t, ok := th[p+".html"]
 		if !ok {
 			http.Error(rw, "page not found", http.StatusNotFound)
 			return
 		}
-		err := t.ExecuteTemplate(w, p, d)
+		err := t.ExecuteTemplate(&buf, p, d)
 		if err != nil {
 			log.Println(err)
 			http.Error(rw, "internal server error", http.StatusInternalServerError)
 			return
 		}
-		if _, ok := w.(*brotli.Writer); ok {
-			w.Close()
-		}
 		buf.WriteTo(rw)
 	})
 }
 
+type pt interface {
+	product | []product
+}
+
 type product struct {
 	Brand    *string `json:"brand"`
+	Bslug    *string `json:"bslug"`
 	Category *string `json:"category"`
 	Name     *string `json:"name"`
 	Desc     *string `json:"desc"`
@@ -98,13 +83,77 @@ type product struct {
 	Image    *string `json:"image"`
 	Files    *string `json:"files"`
 	Ratings  *string `json:"ratings"`
+	Slug     *string `json:"slug"`
 }
 
 type contentp struct {
-	Title, Desc, Data, BrandInfo string
+	Title, Desc, Entries string
 }
 
-func init() {
+func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
+	log.Println("getting spreadsheet values")
+	sht, err := shtsrv.Spreadsheets.Values.Get(os.Getenv("SHEET_ID"), os.Getenv("SHEET_NAME")).Do()
+	if err != nil {
+		return fmt.Errorf("error getting sheet: %w", err)
+	}
+
+	log.Println("starting insert transaction")
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("error beginning tx: %w", err)
+	}
+	_, err = tx.ExecContext(ctx, "DELETE FROM products")
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error removing from table: %w", err)
+	}
+	for i, row := range sht.Values {
+		if i == 0 {
+			continue
+		}
+		if len(row) < numc {
+			row = append(row, make([]any, numc-len(row))...)
+		}
+		insert, err := tx.PrepareContext(ctx, "INSERT INTO products (brand, bslug, category, name, desc, props, image, files, ratings, slug) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("error preparing insert stmt: %w", err)
+		}
+
+		_, err = insert.ExecContext(ctx, row...)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("error inserting: %w", err)
+		}
+	}
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		return fmt.Errorf("error commiting tx: %w", err)
+	}
+	return nil
+}
+func getJson[T pt](ctx context.Context, stmt *sqlx.Stmt, multiple bool, args ...any) (string, error) {
+	dst := new(T)
+	if multiple {
+		err := stmt.SelectContext(ctx, dst, args...)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		err := stmt.GetContext(ctx, dst, args...)
+		if err != nil {
+			return "", err
+		}
+	}
+	bs, err := json.Marshal(dst)
+	if err != nil {
+		return "", err
+	}
+	return string(bs), nil
+}
+
+func main() {
 	log.Println("reading templates")
 	bases, err := fs.ReadDir(tmplfs, "base")
 	if err != nil {
@@ -119,53 +168,11 @@ func init() {
 		}
 		tmpls[base.Name()] = t
 	}
-}
-
-func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
-	log.Println("getting spreadsheet values")
-	sht, err := shtsrv.Spreadsheets.Values.Get(os.Getenv("SHEET_ID"), os.Getenv("SHEET_NAME")).Do()
-	if err != nil {
-		return fmt.Errorf("error getting sheet: %w", err)
-	}
-
-	log.Println("starting insert transaction")
-	for i, row := range sht.Values {
-		if i == 0 {
-			continue
-		}
-		if len(row) < numc {
-			row = append(row, make([]interface{}, numc-len(row))...)
-		}
-		tx, err := db.BeginTx(ctx, nil)
-		if err != nil {
-			return fmt.Errorf("error beginning tx: %w", err)
-		}
-		insert, err := tx.PrepareContext(ctx, "INSERT INTO products (brand, category, name, desc, props, image, files, ratings) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
-		if err != nil {
-			return fmt.Errorf("error preparing insert stmt: %w", err)
-		}
-
-		_, err = insert.ExecContext(ctx, row...)
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("error inserting: %w", err)
-		}
-
-		err = tx.Commit()
-		if err != nil {
-			tx.Rollback()
-			return fmt.Errorf("error commiting tx: %w", err)
-		}
-	}
-	return nil
-}
-
-func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
 	db := sqlx.MustOpen("sqlite3", ":memory:")
-	err := db.PingContext(ctx)
+	err = db.PingContext(ctx)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -186,129 +193,92 @@ func main() {
 		log.Fatalln("error creating sheet service:", err)
 	}
 
-	sel, err := db.PreparexContext(ctx, "SELECT * FROM products")
-	if err != nil {
-		log.Fatalln("error preparing select stmt:", err)
-	}
-	selp, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE category = ?")
+	selc, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE category = ?")
 	if err != nil {
 		log.Fatalln("error preparing select product stmt:", err)
 	}
-	/*selb, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE brand = ?")
+	selb, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE bslug = ?")
 	if err != nil {
 		log.Fatalln("error preparing select product stmt:", err)
-	}*/
+	}
+	selprod, err := db.PreparexContext(ctx, "SELECT * FROM products WHERE slug = ? LIMIT 1")
+	if err != nil {
+		log.Fatalln("error preparing select product stmt:", err)
+	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	withCtx := func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r.WithContext(ctx))
-		})
-	}
-
-	index := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ps []product
-		w.Header().Add("Content-Type", "text/plain; charset=utf-8")
-		err := sel.SelectContext(r.Context(), &ps)
-		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			log.Println("error selecting:", err)
-			return
-		}
-		bs, err := json.Marshal(ps)
-		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			log.Println("error marshalling:", err)
-			return
-		}
-		w.Write(bs)
-	})
-
-	ptype := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ps []product
-		w.Header().Add("Content-Type", "application/json; charset=utf-8")
-
-		v := r.URL.Query()
-		cat := v.Get("q")
-		if cat == "" {
-			http.Error(w, "provide a category", http.StatusBadRequest)
-			return
-		}
-
-		err := selp.SelectContext(r.Context(), &ps, cat)
-		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			log.Println("error selecting:", err)
-			return
-		}
-		bs, err := json.Marshal(ps)
-		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			log.Println("error marshalling:", err)
-			return
-		}
-		w.Write(bs)
-	})
-
-	http.Handle("/api/all/", withCtx(index))
-	http.Handle("/api/category/", withCtx(ptype))
-
-	http.Handle("/assets/", http.FileServer(http.FS(assets)))
-
-	idx := func(h http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path != "/" {
-				http.NotFound(w, r)
+	products := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		vs := mux.Vars(r)
+		p, ok := vs["product"]
+		if ok {
+			j, err := getJson[product](ctx, selprod, false, p)
+			if err != nil {
+				http.Error(w, "interal server error", http.StatusInternalServerError)
+				log.Println(err)
 				return
 			}
-			h.ServeHTTP(w, r)
-		})
-	}
+			tmpls.Handler("product", struct {
+				Title, Desc, Entry string
+			}{
+				Entry: j,
+			}).ServeHTTP(w, r)
+			return
+		}
+		b, ok := vs["brand"]
+		if ok {
+			j, err := getJson[[]product](ctx, selb, true, b)
+			if err != nil {
+				http.Error(w, "interal server error", http.StatusInternalServerError)
+				log.Println(err)
+				return
+			}
+			tmpls.Handler("content", contentp{
+				Entries: j,
+			}).ServeHTTP(w, r)
+			return
+		}
+		c, ok := vs["category"]
+		if ok {
+			j, err := getJson[[]product](ctx, selc, true, c)
+			if err != nil {
+				http.Error(w, "interal server error", http.StatusInternalServerError)
+				log.Println(err)
+				return
+			}
+			tmpls.Handler("content", contentp{
+				Entries: j,
+			}).ServeHTTP(w, r)
+			return
+		}
+		http.NotFound(w, r)
+	})
 
-	http.Handle("/", idx(tmpls.Handler("index", nil)))
-	http.Handle("/careers/", tmpls.Handler("careers", nil))
-	http.Handle("/about/", tmpls.Handler("about", nil))
-	http.Handle("/aquadrive/", tmpls.Handler("aquadrive", nil))
-	http.Handle("/caterpillar/", tmpls.Handler("caterpillar", nil))
-	http.Handle("/dockmate/", tmpls.Handler("dockmate", nil))
-	http.Handle("/electronics/", tmpls.Handler("electronics", nil))
-	http.Handle("/glendinning/", tmpls.Handler("glendinning", nil))
-	http.Handle("/products/inboard_engines/", tmpls.Handler("content", contentp{
-		Title:     "Inboard Engines",
-		Desc:      "lmao",
-		Data:      "/api/category/?q=inboard",
-		BrandInfo: "",
-	}))
-	http.Handle("/products/outboard_engines/", tmpls.Handler("content", contentp{
-		Title:     "Outboard Engines",
-		Desc:      "lmao",
-		Data:      "/api/category/?q=outboard",
-		BrandInfo: "",
-	}))
-	http.Handle("/products/transmissions/", tmpls.Handler("content", contentp{
-		Title:     "Transmissions",
-		Desc:      "lmao",
-		Data:      "/api/category/?q=transmissions",
-		BrandInfo: "",
-	}))
-	http.Handle("/products/waterjets/", tmpls.Handler("content", contentp{
-		Title:     "Waterjets",
-		Desc:      "lmao",
-		Data:      "/api/category/?q=waterjets",
-		BrandInfo: "",
-	}))
-	http.Handle("/products/generators/", tmpls.Handler("content", contentp{
-		Title:     "Generators",
-		Desc:      "lmao",
-		Data:      "/api/category/?q=generators",
-		BrandInfo: "",
-	}))
+	r := mux.NewRouter()
+	r.NotFoundHandler = tmpls.Handler("404", nil)
+
+	r.PathPrefix("/assets/").Handler(http.StripPrefix("/", http.FileServer(http.FS(assets))))
+
+	r.Handle("/", tmpls.Handler("index", nil))
+	r.Handle("/careers", tmpls.Handler("careers", nil))
+	r.Handle("/about", tmpls.Handler("about", nil))
+	r.Handle("/aquadrive", tmpls.Handler("aquadrive", nil))
+	r.Handle("/caterpillar", tmpls.Handler("caterpillar", nil))
+	r.Handle("/dockmate", tmpls.Handler("dockmate", nil))
+	r.Handle("/electronics", tmpls.Handler("electronics", nil))
+	r.Handle("/glendinning", tmpls.Handler("glendinning", nil))
+
+	productsr := r.PathPrefix("/products/").Subrouter()
+
+	productsr.Handle("/{category}", products)
+	productsr.Handle("/{category}/{brand}", products)
+	productsr.Handle("/{category}/{brand}/{product}", products)
 
 	srv := &http.Server{
+		Handler:      r,
 		Addr:         ":" + port,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 10 * time.Second,
