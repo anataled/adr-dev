@@ -6,9 +6,6 @@ kill_timeout = 5
 primary_region = "lax"
 processes = []
 
-[env]
-  PORT = "9090"
-
 [experimental]
   auto_rollback = true
 

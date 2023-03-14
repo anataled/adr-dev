@@ -206,11 +206,6 @@ func main() {
 		log.Fatalln("error preparing select product stmt:", err)
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
 	products := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vs := mux.Vars(r)
 		p, ok := vs["product"]
@@ -279,7 +274,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:" + port,
+		Addr:         "127.0.0.1:8080",
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -309,6 +304,6 @@ func main() {
 		}
 
 	}()
-	log.Println("listening on", port, "updating every 1h")
+	log.Println("listening on localhost 8080 updating every 1h")
 	log.Fatal(srv.ListenAndServe())
 }
