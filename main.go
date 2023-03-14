@@ -279,7 +279,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         ":" + port,
+		Addr:         "127.0.0.1:" + port,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}

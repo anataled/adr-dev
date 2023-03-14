@@ -1,6 +1,6 @@
 # fly.toml file generated for adr-dev on 2023-03-14T03:58:49Z
 
-app = "adr-dev"
+app = "adr"
 kill_signal = "SIGINT"
 kill_timeout = 5
 primary_region = "lax"
