@@ -274,7 +274,7 @@ func main() {
 
 	srv := &http.Server{
 		Handler:      r,
-		Addr:         "127.0.0.1:8080",
+		Addr:         "0.0.0.0:8080",
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
@@ -304,6 +304,6 @@ func main() {
 		}
 
 	}()
-	log.Println("listening on localhost 8080 updating every 1h")
+	log.Println("listening on 0.0.0.0 8080 updating every 1h")
 	log.Fatal(srv.ListenAndServe())
 }
