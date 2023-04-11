@@ -43,11 +43,12 @@
         <template x-show="filtered.length == 0">
             <h1 x-text="query"></h1>
         </template>
-        <div x-data="{ open: false }" :class="open ? 'items-start' : 'items-stretch'" class="flex flex-col lg:flex-row flex-wrap justify-evenly gap-5">
+        <div x-data="{ open: false }" :class="open ? 'items-start' : 'items-stretch'" class="flex flex-col md:flex-row flex-wrap justify-evenly gap-5">
             <template x-for="entry in filtered">
                 <div class="flex w-full flex-col basis-1/3 2xl:basis-1/5 md:border gap-4 p-4">
-                    <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><div class="text-center basis-1/3 grow-0">
-                        <picture class="animate__animated animate__fadeIn">
+                    <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug">
+                    <div class="text-center basis-1/3 grow-0">
+                        <picture class="animate__animated animate__fadeIn p-5">
                             <source
                                 :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
                                 type="image/avif">

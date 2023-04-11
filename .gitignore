@@ -2,3 +2,4 @@ node_modules/
 *:Zone.Identifier
 dist/
 compiled/
+adr
