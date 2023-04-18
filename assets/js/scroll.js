@@ -1,5 +1,3 @@
-import ScrollBooster from "scrollbooster";
-
 var width = document.getElementById('slider').scrollWidth;
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
