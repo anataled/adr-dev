@@ -261,10 +261,14 @@ func main() {
 	r.Handle("/careers", tmpls.Handler("careers", nil))
 	r.Handle("/about", tmpls.Handler("about", nil))
 	r.Handle("/aquadrive", tmpls.Handler("aquadrive", nil))
+	r.Handle("/affiliates", tmpls.Handler("affiliates", nil))
 	r.Handle("/caterpillar", tmpls.Handler("caterpillar", nil))
 	r.Handle("/dockmate", tmpls.Handler("dockmate", nil))
 	r.Handle("/electronics", tmpls.Handler("electronics", nil))
 	r.Handle("/glendinning", tmpls.Handler("glendinning", nil))
+	r.Handle("/locations", tmpls.Handler("locations", nil))
+
+	r.Handle("/locations/{location}", nil)
 
 	productsr := r.PathPrefix("/products/").Subrouter()
 
@@ -288,18 +292,19 @@ func main() {
 	tick := time.NewTicker(time.Hour)
 
 	go func() {
-
-		select {
-		case <-ctx.Done():
-			cancel()
-			srv.Close()
-		case <-tick.C:
-			log.Println("updating...")
-			err := update(ctx, db, shtsrv)
-			if err != nil {
-				log.Println("error updating:", err)
-			} else {
-				log.Println("done updating!")
+		for {
+			select {
+			case <-ctx.Done():
+				cancel()
+				srv.Close()
+			case <-tick.C:
+				log.Println("updating...")
+				err := update(ctx, db, shtsrv)
+				if err != nil {
+					log.Println("error updating:", err)
+				} else {
+					log.Println("done updating!")
+				}
 			}
 		}
 

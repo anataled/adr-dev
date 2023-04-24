@@ -1,5 +1,5 @@
 {{define "nav"}}
-<div x-data="{dropdown: false}" id="nav"
+<div x-data="{pdropdown: false, ldropdown: false}" id="nav"
     class="flex top-0 left-0 z-50 font-sans bg-gradient-to-tr from-sky-900 to-blue-900 font-bold text-slate-100 flex-wrap text-lg flex-initial justify-around lg:justify-start items-center gap-x-10 gap-y-5">
     <a href="/" class="w-1/3 lg:w-1/12 h-auto my-5 order-first">
         <picture>
@@ -11,10 +11,10 @@
             <a aria-label="About page" href="/about">About</a>
         </div>
         <div class="flex-initial overflow-visible relative select-none">
-            <span aria-label="Product navigation dropdown" tabindex="0" @keyup.enter="dropdown = !dropdown" @keyup.space="dropdown = !dropdown" @click.outside="dropdown = false" @click="dropdown = !dropdown"
+            <span aria-label="Product navigation pdropdown" tabindex="0" @keyup.enter="pdropdown = !pdropdown" @keyup.space="pdropdown = !pdropdown" @click.outside="pdropdown = false" @click="pdropdown = !pdropdown"
                 class="cursor-pointer">Products&nbsp;&nbsp;<span><i
-                        :class="dropdown ? 'fa-angle-right' : 'fa-angle-down'" class="fa-solid"></i></span></span>
-            <div @blur="dropdown = false" x-show="dropdown" x-transition x-cloak
+                        :class="pdropdown ? 'fa-angle-right' : 'fa-angle-down'" class="fa-solid"></i></span></span>
+            <div @blur="pdropdown = false" x-show="pdropdown" x-transition x-cloak
                 class="z-50 no-scrollbar overscroll-contain fixed lg:absolute top-0 left-0 lg:top-full w-screen h-screen lg:h-auto lg:w-72 lg:rounded-md overflow-y-scroll shadow-lg text-slate-200 lg:text-gray-700 bg-gradient-to-tr from-sky-700 to-blue-900 lg:bg-none lg:bg-white ring-1 ring-black ring-opacity-5"
                 role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
                 <div class="py-1 text-md" role="none">
@@ -22,7 +22,7 @@
                         tabindex="-1" id="menu-item-0">
                         <span>Engines</span>
                         <div class="mt-1 ml-5">
-                            <a href="/products/inboard-engines">Inboard Engines</a>
+                            <a class="hover:underline" href="/products/inboard-engines">Inboard Engines</a>
                             <div class="mt-1 ml-10">
                                 <ul class="list-none font-thin">
                                     <li><a aria-label="Baudouin inboard engines" class="hover:underline" href="/products/inboard-engines/baudouin">Baudouin</a>
@@ -34,7 +34,7 @@
                             </div>
                         </div>
                         <div class="mt-1 ml-5">
-                            <a href="/products/outboard-engines">Outboard Engines</a>
+                            <a class="hover:underline" href="/products/outboard-engines">Outboard Engines</a>
                             <div class="mt-1 ml-10">
                                 <ul class="list-none font-thin">
                                     <li><a aria-label="Neander outboard engines" class="hover:underline" href="/products/outboard-engines/neander-motors">Neander Motors</a>
@@ -47,7 +47,7 @@
                     </div>
                     <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
                         tabindex="-1" id="menu-item-0">
-                        <a href="/products/transmissions">Powertrain</a>
+                        <a class="hover:underline" href="/products/transmissions">Powertrain</a>
                         <div class="mt-1 ml-5 font-thin">
                             <span><a aria-label="ZF Transmissions" class="hover:underline" href="/products/transmissions/zf">ZF</a></span>
                         </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
                         tabindex="-1" id="menu-item-0">
-                        <a href="/products/waterjets">Waterjets</a>
+                        <a class="hover:underline" href="/products/waterjets">Waterjets</a>
                         <div class="mt-1 ml-5 font-thin">
                             <span><a aria-label="Alamarin-Jet waterjets" class="hover:underline"
                                     href="/products/waterjets/alamarin-jet">Alamarin-Jet</a></span>
@@ -68,7 +68,7 @@
                     </div>
                     <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
                         tabindex="-1" id="menu-item-0">
-                        <a href="/products/generators">Generators</a>
+                        <a class="hover:underline" href="/products/generators">Generators</a>
                         <div class="mt-1 ml-5 font-thin">
                             <span><a aria-label="Northern Lights generators" class="hover:underline" href="/products/generators/northern-lights">Northern
                                     Lights</a></span>
@@ -79,7 +79,88 @@
                     </div>
                     <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
                         tabindex="-1" id="menu-item-0">
-                        <a href="/electronics">Electronics</a>
+                        <a class="hover:underline" href="/electronics">Electronics</a>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Glendinning electronics" class="hover:underline"
+                                    href="/glendinning">Glendinning</a></span>
+                        </div>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Dockmate electronics" class="hover:underline" href="/dockmate">Dockmate</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex-initial overflow-visible relative select-none">
+            <span aria-label="Product navigation ldropdown" tabindex="0" @keyup.enter="ldropdown = !ldropdown" @keyup.space="ldropdown = !ldropdown" @click.outside="ldropdown = false" @click="ldropdown = !ldropdown"
+                class="cursor-pointer">Locations&nbsp;&nbsp;<span><i
+                        :class="ldropdown ? 'fa-angle-right' : 'fa-angle-down'" class="fa-solid"></i></span></span>
+            <div @blur="ldropdown = false" x-show="ldropdown" x-transition x-cloak
+                class="z-50 no-scrollbar overscroll-contain fixed lg:absolute top-0 left-0 lg:top-full w-screen h-screen lg:h-auto lg:w-72 lg:rounded-md overflow-y-scroll shadow-lg text-slate-200 lg:text-gray-700 bg-gradient-to-tr from-sky-700 to-blue-900 lg:bg-none lg:bg-white ring-1 ring-black ring-opacity-5"
+                role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                <div class="py-1 text-md" role="none">
+                    <div class="block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
+                        tabindex="-1" id="menu-item-0">
+                        <span>Engines</span>
+                        <div class="mt-1 ml-5">
+                            <a class="hover:underline" href="/products/inboard-engines">Inboard Engines</a>
+                            <div class="mt-1 ml-10">
+                                <ul class="list-none font-thin">
+                                    <li><a aria-label="Baudouin inboard engines" class="hover:underline" href="/products/inboard-engines/baudouin">Baudouin</a>
+                                    </li>
+                                    <li><a aria-label="Scania inboard engines" class="hover:underline" href="/products/inboard-engines/scania">Scania</a></li>
+                                    <li><a aria-label="Caterpillar inboard engines" class="hover:underline"
+                                            href="/caterpillar">Caterpillar</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-1 ml-5">
+                            <a class="hover:underline" href="/products/outboard-engines">Outboard Engines</a>
+                            <div class="mt-1 ml-10">
+                                <ul class="list-none font-thin">
+                                    <li><a aria-label="Neander outboard engines" class="hover:underline" href="/products/outboard-engines/neander-motors">Neander Motors</a>
+                                    </li>
+                                    <li><a aria-label="OXE outboard engines" class="hover:underline" href="/products/outboard-engines/oxe-diesel">OXE Diesel</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
+                        tabindex="-1" id="menu-item-0">
+                        <a class="hover:underline" href="/products/transmissions">Powertrain</a>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="ZF Transmissions" class="hover:underline" href="/products/transmissions/zf">ZF</a></span>
+                        </div>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Twin Disc transmissions" class="hover:underline" href="/products/transmissions/twin-disc">Twin Disc</a></span>
+                        </div>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Aquadrive" class="hover:underline" href="/aquadrive">Aquadrive</a></span>
+                        </div>
+                    </div>
+                    <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
+                        tabindex="-1" id="menu-item-0">
+                        <a class="hover:underline" href="/products/waterjets">Waterjets</a>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Alamarin-Jet waterjets" class="hover:underline"
+                                    href="/products/waterjets/alamarin-jet">Alamarin-Jet</a></span>
+                        </div>
+                    </div>
+                    <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
+                        tabindex="-1" id="menu-item-0">
+                        <a class="hover:underline" href="/products/generators">Generators</a>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Northern Lights generators" class="hover:underline" href="/products/generators/northern-lights">Northern
+                                    Lights</a></span>
+                        </div>
+                        <div class="mt-1 ml-5 font-thin">
+                            <span><a aria-label="Kohler generators" class="hover:underline" href="/products/generators/kohler">Kohler</a></span>
+                        </div>
+                    </div>
+                    <div class=" block px-4 py-2 lg:hover:bg-gray-100 lg:hover:text-gray-900" role="menuitem"
+                        tabindex="-1" id="menu-item-0">
+                        <a class="hover:underline" href="/electronics">Electronics</a>
                         <div class="mt-1 ml-5 font-thin">
                             <span><a aria-label="Glendinning electronics" class="hover:underline"
                                     href="/glendinning">Glendinning</a></span>
