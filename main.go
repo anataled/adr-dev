@@ -48,7 +48,8 @@ var assets embed.FS
 type templateHandler map[string]*template.Template
 
 var (
-	tmpls = make(templateHandler)
+	tmpls     = make(templateHandler)
+	locations = make(templateHandler)
 )
 
 func (th templateHandler) Handler(p string, d any) http.Handler {
@@ -133,6 +134,14 @@ func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
 	}
 	return nil
 }
+
+func maxAgeHandler(seconds int, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Cache-Control", fmt.Sprintf("max-age=%d, public, must-revalidate, proxy-revalidate", seconds))
+		h.ServeHTTP(w, r)
+	})
+}
+
 func getJson[T pt](ctx context.Context, stmt *sqlx.Stmt, multiple bool, args ...any) (string, error) {
 	dst := new(T)
 	if multiple {
@@ -255,7 +264,7 @@ func main() {
 	r := mux.NewRouter()
 	r.NotFoundHandler = tmpls.Handler("404", nil)
 
-	r.PathPrefix("/assets/").Handler(http.StripPrefix("/", http.FileServer(http.FS(assets))))
+	r.PathPrefix("/assets/").Handler(maxAgeHandler(3600, http.StripPrefix("/", http.FileServer(http.FS(assets)))))
 
 	r.Handle("/", tmpls.Handler("index", nil))
 	r.Handle("/careers", tmpls.Handler("careers", nil))

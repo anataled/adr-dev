@@ -11,7 +11,7 @@ document.addEventListener("touchstart", function (e) {
         flag = false
     }
     return true
-});
+}, {passive: true});
 const sb = new ScrollBooster({
     viewport: document.querySelector('#slider'),
     scrollMode: 'transform',
