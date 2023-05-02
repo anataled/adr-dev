@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -48,11 +49,10 @@ var assets embed.FS
 type templateHandler map[string]*template.Template
 
 var (
-	tmpls     = make(templateHandler)
-	locations = make(templateHandler)
+	tmpls = make(templateHandler)
 )
 
-func (th templateHandler) Handler(p string, d any) http.Handler {
+func (th templateHandler) Handler(p string, name string, d any) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		var buf bytes.Buffer
 		t, ok := th[p+".html"]
@@ -60,7 +60,7 @@ func (th templateHandler) Handler(p string, d any) http.Handler {
 			http.Error(rw, "page not found", http.StatusNotFound)
 			return
 		}
-		err := t.ExecuteTemplate(&buf, p, d)
+		err := t.ExecuteTemplate(&buf, name, d)
 		if err != nil {
 			log.Println(err)
 			http.Error(rw, "internal server error", http.StatusInternalServerError)
@@ -171,12 +171,29 @@ func main() {
 
 	log.Println("parsing templates")
 	for _, base := range bases {
-		t, err := template.ParseFS(tmplfs, "partials/*", "base/"+base.Name())
+		if base.IsDir() {
+			continue
+		}
+		t, err := template.ParseFS(tmplfs, path.Join("partials", "*"), path.Join("base", base.Name()))
 		if err != nil {
 			log.Fatalln(err)
 		}
 		tmpls[base.Name()] = t
 	}
+	log.Println("reading location templates")
+	locTmpl, err := fs.ReadDir(tmplfs, path.Join("base", "locations"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("parsing locations templates")
+	for _, loc := range locTmpl {
+		t, err := template.ParseFS(tmplfs, path.Join("partials", "*.html"), path.Join("base", "location.html"), path.Join("base", "locations", loc.Name()))
+		if err != nil {
+			log.Fatalln(err)
+		}
+		tmpls[loc.Name()] = t
+	}
+	fmt.Println(tmpls)
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer cancel()
 
@@ -225,7 +242,7 @@ func main() {
 				log.Println(err)
 				return
 			}
-			tmpls.Handler("product", struct {
+			tmpls.Handler("product", "product", struct {
 				Title, Desc, Entry string
 			}{
 				Entry: j,
@@ -240,7 +257,7 @@ func main() {
 				log.Println(err)
 				return
 			}
-			tmpls.Handler("content", contentp{
+			tmpls.Handler("content", "content", contentp{
 				Entries: j,
 			}).ServeHTTP(w, r)
 			return
@@ -253,7 +270,7 @@ func main() {
 				log.Println(err)
 				return
 			}
-			tmpls.Handler("content", contentp{
+			tmpls.Handler("content", "content", contentp{
 				Entries: j,
 			}).ServeHTTP(w, r)
 			return
@@ -262,22 +279,26 @@ func main() {
 	})
 
 	r := mux.NewRouter()
-	r.NotFoundHandler = tmpls.Handler("404", nil)
+	r.NotFoundHandler = tmpls.Handler("404", "404", nil)
 
 	r.PathPrefix("/assets/").Handler(maxAgeHandler(3600, http.StripPrefix("/", http.FileServer(http.FS(assets)))))
 
-	r.Handle("/", tmpls.Handler("index", nil))
-	r.Handle("/careers", tmpls.Handler("careers", nil))
-	r.Handle("/about", tmpls.Handler("about", nil))
-	r.Handle("/aquadrive", tmpls.Handler("aquadrive", nil))
-	r.Handle("/affiliates", tmpls.Handler("affiliates", nil))
-	r.Handle("/caterpillar", tmpls.Handler("caterpillar", nil))
-	r.Handle("/dockmate", tmpls.Handler("dockmate", nil))
-	r.Handle("/electronics", tmpls.Handler("electronics", nil))
-	r.Handle("/glendinning", tmpls.Handler("glendinning", nil))
-	r.Handle("/locations", tmpls.Handler("locations", nil))
+	r.Handle("/", tmpls.Handler("index", "index", nil))
+	r.Handle("/careers", tmpls.Handler("careers", "careers", nil))
+	r.Handle("/about", tmpls.Handler("about", "careers", nil))
+	r.Handle("/aquadrive", tmpls.Handler("aquadrive", "careers", nil))
+	r.Handle("/affiliates", tmpls.Handler("affiliates", "affiliates", nil))
+	r.Handle("/caterpillar", tmpls.Handler("caterpillar", "caterpillar", nil))
+	r.Handle("/dockmate", tmpls.Handler("dockmate", "dockmate", nil))
+	r.Handle("/electronics", tmpls.Handler("electronics", "electronics", nil))
+	r.Handle("/glendinning", tmpls.Handler("glendinning", "glendinning", nil))
+	r.Handle("/locations", tmpls.Handler("locations", "locations", nil))
 
-	r.Handle("/locations/{location}", nil)
+	r.Handle("/locations/north-florida", tmpls.Handler("nfl", "location", nil))
+	r.Handle("/locations/south-florida", tmpls.Handler("sfl", "location", nil))
+	r.Handle("/locations/central-florida", tmpls.Handler("cfl", "location", nil))
+	r.Handle("/locations/virginia", tmpls.Handler("va", "location", nil))
+	r.Handle("/locations/michigan", tmpls.Handler("mi", "location", nil))
 
 	productsr := r.PathPrefix("/products/").Subrouter()
 
