@@ -2,7 +2,7 @@
 {{template "head" .}}
 
 <body x-data="{lightbox: '', entry: {{ .Entry }} }" :class="lightbox && 'overflow-hidden'">
-    <div class="flex gap-24 flex-col mb-10 h-screen">
+    <div class="flex gap-24 flex-col min-h-screen">
         {{template "nav" .}}
         <div class="flex flex-col lg:flex-row justify-evenly">
             <div class="text-center basis-1/3">

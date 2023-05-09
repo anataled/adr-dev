@@ -285,8 +285,8 @@ func main() {
 
 	r.Handle("/", tmpls.Handler("index", "index", nil))
 	r.Handle("/careers", tmpls.Handler("careers", "careers", nil))
-	r.Handle("/about", tmpls.Handler("about", "careers", nil))
-	r.Handle("/aquadrive", tmpls.Handler("aquadrive", "careers", nil))
+	r.Handle("/about", tmpls.Handler("about", "about", nil))
+	r.Handle("/aquadrive", tmpls.Handler("aquadrive", "aquadrive", nil))
 	r.Handle("/affiliates", tmpls.Handler("affiliates", "affiliates", nil))
 	r.Handle("/caterpillar", tmpls.Handler("caterpillar", "caterpillar", nil))
 	r.Handle("/dockmate", tmpls.Handler("dockmate", "dockmate", nil))
