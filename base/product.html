@@ -4,7 +4,7 @@
 <body x-data="{lightbox: '', entry: {{ .Entry }} }" :class="lightbox && 'overflow-hidden'">
     <div class="flex gap-24 flex-col min-h-screen">
         {{template "nav" .}}
-        <div class="flex flex-col lg:flex-row justify-evenly">
+        <div class="flex flex-col gap-3 lg:flex-row justify-evenly">
             <div class="text-center basis-1/3">
                 <picture @click="lightbox = !lightbox" class="animate__animated animate__fadeIn cursor-pointer">
                     <source
@@ -71,7 +71,7 @@
         <div class="grow"></div>
     {{template "footer" .}}
     </div>
-    <div x-transition.opacity @click="lightbox = !lightbox" class="absolute top-0 left-0 z-50 w-full h-full bg-slate-700/90 flex justify-center items-center" x-show="lightbox">
+    <div x-transition.opacity @click="lightbox = !lightbox" class="fixed top-0 left-0 z-50 w-full h-full bg-slate-700/90 flex justify-center items-center" x-show="lightbox">
         <picture class="animate__animated animate__fadeIn">
             <source
                 :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
@@ -79,7 +79,7 @@
             <source
                 :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
                 type="image/webp">
-            <img class="rounded inline mx-w-sm md:mx-w-md lg:max-w-6xl border shadow-md"
+            <img class="rounded inline mx-w-sm md:mx-w-md lg:max-w-6xl shadow-xl"
                 :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
         </picture>
     </div>

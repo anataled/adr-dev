@@ -14,11 +14,14 @@ import (
 	"os"
 	"os/signal"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
 )
@@ -36,7 +39,11 @@ const (
     ratings text NULL,
 	slug text NULL
 );`
-	numc = 10
+	numc       = 10
+	infoSchema = `CREATE TABLE binfo (
+    brand text,
+	info text
+);`
 )
 
 //go:generate ./node_modules/.bin/tailwind --minify -i ./src/in.css -o ./assets/css/main.min.css
@@ -212,6 +219,10 @@ func turnstileMiddle(next http.Handler) http.Handler {
 	})
 }
 
+func slugToRegular(s string) string {
+	return cases.Title(language.AmericanEnglish).String(strings.ReplaceAll(s, "-", " "))
+}
+
 func main() {
 	log.Println("reading templates")
 	bases, err := fs.ReadDir(tmplfs, "base")
@@ -299,21 +310,23 @@ func main() {
 			}).ServeHTTP(w, r)
 			return
 		}
-		b, ok := vs["brand"]
-		if ok {
-			j, err := getJson[[]product](ctx, selb, true, b)
-			if err != nil {
-				http.Error(w, "interal server error", http.StatusInternalServerError)
-				log.Println(err)
-				return
-			}
-			tmpls.Handler("content", "content", contentp{
-				Entries: j,
-			}).ServeHTTP(w, r)
-			return
-		}
 		c, ok := vs["category"]
 		if ok {
+			b, ok := vs["brand"]
+			if ok {
+				j, err := getJson[[]product](ctx, selb, true, b)
+				if err != nil {
+					http.Error(w, "interal server error", http.StatusInternalServerError)
+					log.Println(err)
+					return
+				}
+				tmpls.Handler("content", "content", contentp{
+					Title:   slugToRegular(b),
+					Desc:    slugToRegular(vs["category"]),
+					Entries: j,
+				}).ServeHTTP(w, r)
+				return
+			}
 			j, err := getJson[[]product](ctx, selc, true, c)
 			if err != nil {
 				http.Error(w, "interal server error", http.StatusInternalServerError)
@@ -321,6 +334,7 @@ func main() {
 				return
 			}
 			tmpls.Handler("content", "content", contentp{
+				Desc:    slugToRegular(c),
 				Entries: j,
 			}).ServeHTTP(w, r)
 			return
