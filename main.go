@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"path"
@@ -51,6 +52,14 @@ type templateHandler map[string]*template.Template
 var (
 	tmpls = make(templateHandler)
 )
+
+var emailTemplate = template.Must(template.New("email").Parse(`
+Subject: {{.Subject}}
+Name: {{.Name}}
+Phone: {{.Phone}}
+Message: {{.Message}}
+From: {{.Email}}
+`))
 
 func (th templateHandler) Handler(p string, name string, d any) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -160,6 +169,47 @@ func getJson[T pt](ctx context.Context, stmt *sqlx.Stmt, multiple bool, args ...
 		return "", err
 	}
 	return string(bs), nil
+}
+
+func turnstileMiddle(next http.Handler) http.Handler {
+	vurl := "https://challenges.cloudflare.com/turnstile/v0/siteverify"
+	c := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+		v := url.Values{}
+		t := r.Form.Get("cf-turnstile-response")
+		if t == "" {
+			http.Error(w, "invalid form", http.StatusBadRequest)
+			log.Println("no turnstile response token in form")
+			return
+		}
+		ip := r.Header.Get("CF-Connecting-IP")
+		if ip == "" {
+			http.Error(w, "invalid form", http.StatusBadRequest)
+			fmt.Println(r.RemoteAddr)
+			log.Println("no remote IP header")
+			return
+		}
+		v.Set("secret", os.Getenv(("CF_TURNSTILE_SECRET")))
+		v.Set("response", t)
+		v.Set("remoteip", ip)
+		resp, err := c.PostForm(vurl, v)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("error posting to CF:", err)
+			return
+		}
+		if resp.StatusCode != http.StatusOK {
+			http.Error(w, "bad token", http.StatusBadRequest)
+			log.Println("error from CF:", err)
+			return
+		}
+		// go next
+		fmt.Println(resp)
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -299,6 +349,41 @@ func main() {
 	r.Handle("/locations/central-florida", tmpls.Handler("cfl", "location", nil))
 	r.Handle("/locations/virginia", tmpls.Handler("va", "location", nil))
 	r.Handle("/locations/michigan", tmpls.Handler("mi", "location", nil))
+
+	r.Handle("/api/form", turnstileMiddle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+		d := struct {
+			Subject, Name, Phone, Message, Email string
+		}{}
+		for k, v := range r.Form {
+			if len(v) != 1 {
+				http.Error(w, "bad request", http.StatusBadRequest)
+				log.Println("mmmm not good")
+				return
+			}
+			switch k {
+			case "subject":
+				d.Subject = v[0]
+			case "name":
+				d.Name = v[0]
+			case "email":
+				d.Email = v[0]
+			case "tel":
+				d.Phone = v[0]
+			case "desc":
+				d.Message = v[0]
+			default:
+			}
+		}
+		var buf bytes.Buffer
+		err := emailTemplate.ExecuteTemplate(&buf, "email", d)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println(err)
+			return
+		}
+		fmt.Println(buf.String())
+	}))).Methods("POST")
 
 	productsr := r.PathPrefix("/products/").Subrouter()
 
