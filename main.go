@@ -185,16 +185,16 @@ func turnstileMiddle(next http.Handler) http.Handler {
 			log.Println("no turnstile response token in form")
 			return
 		}
-		ip := r.Header.Get("CF-Connecting-IP")
-		if ip == "" {
-			http.Error(w, "invalid form", http.StatusBadRequest)
-			fmt.Println(r.RemoteAddr)
-			log.Println("no remote IP header")
-			return
-		}
+		//ip := r.Header.Get("CF-Connecting-IP")
+		//if ip == "" {
+		//	http.Error(w, "invalid form", http.StatusBadRequest)
+		//	fmt.Println(r.RemoteAddr)
+		//	log.Println("no remote IP header")
+		//	return
+		//}
 		v.Set("secret", os.Getenv(("CF_TURNSTILE_SECRET")))
 		v.Set("response", t)
-		v.Set("remoteip", ip)
+		//v.Set("remoteip", ip)
 		resp, err := c.PostForm(vurl, v)
 		if err != nil {
 			http.Error(w, "internal server error", http.StatusInternalServerError)
