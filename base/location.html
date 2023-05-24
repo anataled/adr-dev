@@ -11,13 +11,19 @@
                 <div class="text-lg">
                     {{template "locationContacts"}}
                 </div>
-                <div class="flex grow md:border flex-col p-5 justify-between items-center gap-5 text-left rounded-md">
-                    {{template "locationMap"}}
+                <div class="flex flex-col grow gap-4">
+                    <div class="text-xl leading-relaxed">
+                        <h1 class="text-4xl font-serif mb-2">Address</h1>
+                        {{template "locationAddress"}}
+                    </div>
+                    <div class="flex grow basis-1/2 md:border flex-col p-5 justify-between items-center gap-5 text-left rounded-md">
+                        {{template "locationMap"}}
+                    </div>
                 </div>
             </div>
             <div class="flex md:border flex-col p-5 gap-5 text-left rounded-md">
                 <div>
-                    <h1 class="text-4xl">Contact Us</h1>
+                    <h1 class="text-4xl font-serif">Contact Us</h1>
                     <p>Send a message to this location</p>
                 </div>
                 <hr>

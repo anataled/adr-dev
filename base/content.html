@@ -19,18 +19,14 @@
             params.set(k, v);
             window.history.replaceState({}, '', `${location.pathname}?${params}`);
         }
-    }" class="min-h-screen flex gap-24 flex-col mb-10">
+    }" class="min-h-screen flex flex-col mb-10">
         {{template "nav" .}}
-        <div class="flex-initial lg:flex-row flex-col flex justify-center items-center lg:mx-24 gap-14 text-center">
-            <div class="basis-1/2 lg:w-1/2">
-                {{ if eq .Title "" }}
-                <h1 class="text-5xl font-serif capitalize basis-1/2 border-b-4 border-sky-900 inline-block pb-4">{{ .Desc }}</h1>
-                {{ else }}
-                <h1 class="text-5xl font-serif capitalize basis-1/2">{{ .Title }}</h1>
-                <p class="mt-7 inline-block font-thin border-b-4 border-sky-900 pb-4">{{ .Desc }}</p>
-                {{ end }}
+        <div
+            class="flex-initial lg:flex-row flex-col flex justify-between items-center md:mx-5 mt-10 mb-4 rounded-t-md border gap-14 text-center bg-gray-50 p-4">
+            <div class="flex items-center gap-3 basis-1/5">
+                <a href="/products/{{.DescSlug}}" class="capitalize">{{.Desc}}</a>{{if ne .Title ""}}<i class="fa-solid fa-angle-right"></i><a href="/products/{{.DescSlug}}/{{.TitleSlug}}">{{.Title}}</a>{{end}}
             </div>
-            <div class="flex justify-start items-center relative basis-1/2 lg:w-1/4">
+            <div class="flex justify-start items-center relative basis-1/4">
                 <input @keydown="setURL('q', search)" x-model.debounce.500ms="search"
                     class="text-sm leading-none text-left text-gray-600 px-4 py-3 w-full border rounded border-gray-300 focus:ring-blue-500/50 transition-all"
                     type="text" placeholder="Filter within this page...">
@@ -47,76 +43,44 @@
         <template x-show="filtered.length == 0">
             <h1 x-text="query"></h1>
         </template>
-        <div x-data="{ open: false }" class="grid md:mx-5 auto-rows-max grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <div x-data="{ open: false }"
+            class="grid md:mx-5 auto-rows-max grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <template x-for="entry in filtered">
-                <div class="flex justify-between w-full flex-col md:border gap-4 p-4">
+                <div class="flex justify-evenly w-full flex-col md:border gap-4 p-4 hover:bg-gray-50 transition-all hover:cursor-pointer">
                     <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug">
-                    <div class="text-center basis-1/3 grow-0">
-                        <picture class="animate__animated animate__fadeIn">
-                            <source
-                                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
-                                type="image/avif">
-                            <source
-                                :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
-                                type="image/webp">
-                            <img class="rounded inline object-fit max-h-38 w-auto max-w-full"
-                                :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
-                        </picture>
-                    </div>
-                    </a>
-                    <div x-data="{ specs: false }"
-                        class="flex-initial basis-1/3 text-center justify-around gap-4 flex flex-col">
-                        <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span></a>
+                        <div class="text-center basis-1/4 grow-0 hover:scale-105 transition-all">
+                            <picture class="animate__animated animate__fadeIn">
+                                <source
+                                    :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
+                                    type="image/avif">
+                                <source
+                                    :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
+                                    type="image/webp">
+                                <img class="rounded inline object-fit max-h-38 w-auto max-w-full"
+                                    :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
+                            </picture>
+                        </div>
+                        <div x-data="{ specs: false, ratings: false }"
+                            class="flex-initial basis-3/4 text-center justify-around gap-4 flex flex-col">
+                            <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><span
+                                    x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span></a>
                             <span class="text-slate-700 uppercase font-bold">Summary</span>
-                        <template x-for="d in entry.desc.split('\n')">
-                            <p x-text="d" class="leading-loose font-thin"></p>
-                        </template>
-
-                        <div class="flex items-center justify-center gap-5 text-slate-700">
-                            <span class="text-slate-700 font-bold uppercase">Specifications</span>
-                        <i x-on:animationend="$event.target.classList.remove(`animate__animated`, 'animate__rotateIn');"
-                            x-on:click="specs = !specs, open = !open" :class="specs ? 'fa-circle-up' : 'fa-circle-down'"
-                            class="text-2xl text-emerald-500 fa-solid hover:cursor-pointer"></i>
-                        </div>
-                        <div x-show="specs" class="overflow-auto">
-                            <table class="table-fixed w-full text-lg font-mono text-center">
-                                <tbody>
-                                    <template x-for="prop in entry.props.split('\n')">
-                                        <tr class="border-slate-500 border-y border-dotted">
-                                            <template x-for="cell in prop.split('|')">
-                                                <td x-text="if (cell) { return cell.trim() }"></td>
-                                            </template>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                        <span x-show="entry.ratings !== ''" class="text-slate-700 font-bold uppercase">Ratings</span>
-                        <div class="overflow-auto">
-                            <table x-show="entry.ratings !== ''" class="table-fixed text-lg font-mono uppercase">
-                                <tbody>
-                                    <template x-for="prop in (entry.ratings ? entry.ratings : '').split('\n')">
-                                        <tr class="border-slate-500 border-y border-dotted">
-                                            <template x-for="p in prop.split('|')">
-                                                <td colspan="5" class="p-3" x-text="p.trim()"></td>
-                                            </template>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                        <span class="text-slate-700 uppercase font-bold">Datasheets</span>
-                        <div class="flex gap-5 justify-center text-emerald-500">
-                            <template x-for="file in entry.files.split('\n')">
-                                <div>
-                                    <i class="fa-solid fa-file-pdf"></i>&nbsp;<a target="_blank"
-                                        :href="'/assets/docs/'+file+'.pdf'" x-text="file"
-                                        class="hover:cursor-pointer uppercase"></a>
-                                </div>
+                            <template x-for="d in entry.desc.split('\n')">
+                                <p x-text="d" class="leading-loose font-thin"></p>
                             </template>
+                            <span class="text-slate-700 uppercase font-bold">Datasheets</span>
+                            <div class="flex gap-5 justify-center text-emerald-500">
+                                <template x-for="file in entry.files.split('\n')">
+                                    <div>
+                                        <i class="fa-solid fa-file-pdf"></i>&nbsp;<a target="_blank"
+                                            :href="'/assets/docs/'+file+'.pdf'" x-text="file"
+                                            class="hover:cursor-pointer uppercase"></a>
+                                    </div>
+                                </template>
+                            </div>
                         </div>
-                    </div>
-                    <hr class="md:hidden">
+                        <hr class="md:hidden">
+                    </a>
                 </div>
             </template>
         </div>

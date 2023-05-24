@@ -7,25 +7,16 @@
         {{template "nav" .}}
         <div class="flex-initial flex justify-center h-screen w-screen relative">
             <picture>
-                <source srcset="/assets/image/avif/ronan.avif" type="image/avif">
+                <source srcset="/assets/image/webp/ronan.webp" type="image/webp">
                 <img alt="Background image with a tugboat sailing into the sunset" src="/assets/image/ronan.jpeg"
                     class="absolute w-full h-full lg:h-5/6 z-10 brightness-50 object-cover">
                 </img>
             </picture>
             <div id="viewport" class="flex flex-col z-20 w-full justify-start gap-10">
-                <div class="flex flex-col lg:flex-row justify-center items-center h-4/6 z-20 basis-1/2">
+                <div class="flex items-center h-4/6 z-20 basis-1/2">
                     <span
-                        class="text-slate-100 font-serif md:ml-10 text-3xl  lg:text-6xl 2xl:text-8xl leading-loose basis-1/2 text-center lg:text-left flex justify-center items-center">
+                        class="text-slate-100 font-serif ml-5 md:ml-10 lg:ml-20 text-6xl 2xl:text-8xl text-left flex justify-center items-center">
                         Marine products<br>tailored to your needs.</span>
-                    <span
-                        class="text-slate-100 lg:mr-10 text-sm lg:text-lg basis-1/2 text-center justify-center items-center leading-loose tracking-wide p-6 hidden md:block">
-                        From service to re-powers, diagnostics to overhauls, parts to upgrades, we tailor marine
-                        products to
-                        fit your specific operating needs. ADR is proud to represent products that are reliable, readily
-                        accessible, and serviceable wherever your vessel takes you. Call us and one of our professionals
-                        will help you choose the right product to suit your mission or get you up and running in no
-                        time.
-                    </span>
                 </div>
                 <div id="slider" class="cursor-grab  lg:mx-32 text-lg font-bold basis-1/6">
                     <div class="gap-16 no-scrollbar grid grid-flow-col scroll-p-5 auto-cols-max md:auto-cols-min auto-rows-max snap-x snap-mandatory text-center items-center"
@@ -141,8 +132,17 @@
             </div>
         </div>
         <div class="flex flex-col justify-around p-6 flex-initial rounded-md">
-            <div id="what" class="flex-initial basis-1/2 mb-8">
+            <div id="what" class="flex-initial basis-1/2 mb-8 flex gap-4 flex-col md:flex-row mx-5 md:mx-8 lg:mx-10 w-1/3 items-center justify-center border bg-blue-900 border-gray-500 rounded-md">
                 <h1 class="font-serif text-center lg:text-6xl text-white text-3xl md:text-6xl">What We Do</h1>
+                    <span
+                        class="text-slate-100 text-center">
+                        From service to re-powers, diagnostics to overhauls, parts to upgrades, we tailor marine
+                        products to
+                        fit your specific operating needs. ADR is proud to represent products that are reliable, readily
+                        accessible, and serviceable wherever your vessel takes you. Call us and one of our professionals
+                        will help you choose the right product to suit your mission or get you up and running in no
+                        time.
+                    </span>
             </div>
             <div class="flex-initial basis-1/2 md:my-8">
                 <div class="flex flex-col lg:flex-row justify-center gap-10 flex-wrap">

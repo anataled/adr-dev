@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./base/*.html", "./partials/*.html"],
+  content: ["./base/*.html", "./partials/*.html", "./base/locations/*.html"],
   theme: {
     fontFamily: {
       sans: ['Bahnschrift', '"DIN Alternate"', '"Franklin Gothic Medium"', '"Nimbus Sans Narrow"', 'sans-serif-condensed', 'sans-serif'],

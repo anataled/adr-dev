@@ -105,6 +105,7 @@ type product struct {
 
 type contentp struct {
 	Title, Desc, Entries string
+	TitleSlug, DescSlug  string
 }
 
 func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
@@ -321,9 +322,11 @@ func main() {
 					return
 				}
 				tmpls.Handler("content", "content", contentp{
-					Title:   slugToRegular(b),
-					Desc:    slugToRegular(vs["category"]),
-					Entries: j,
+					Title:     slugToRegular(b),
+					TitleSlug: b,
+					DescSlug:  vs["category"],
+					Desc:      slugToRegular(vs["category"]),
+					Entries:   j,
 				}).ServeHTTP(w, r)
 				return
 			}
@@ -334,8 +337,9 @@ func main() {
 				return
 			}
 			tmpls.Handler("content", "content", contentp{
-				Desc:    slugToRegular(c),
-				Entries: j,
+				Desc:     slugToRegular(c),
+				DescSlug: c,
+				Entries:  j,
 			}).ServeHTTP(w, r)
 			return
 		}
