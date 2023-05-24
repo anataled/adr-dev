@@ -3,7 +3,7 @@
 {{template "head" .}}
 
 <body x-data>
-    <div class="flex overflow-x-hidden flex-col bg-gradient-to-tr from-sky-700 to-blue-900">
+    <div class="flex overflow-x-hidden flex-col bg-gradient-to-br from-sky-800 to-blue-900">
         {{template "nav" .}}
         <div class="flex-initial flex justify-center h-screen w-screen relative">
             <picture>
@@ -30,7 +30,7 @@
                                 </picture>
                             </div>
                         </a>
-                        <a  aria-label="Browse Baudoin inboard engines" href="/products/inboard-engines/baudouin">
+                        <a aria-label="Browse Baudoin inboard engines" href="/products/inboard-engines/baudouin">
                             <div
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
                                 <picture>
@@ -53,7 +53,8 @@
                                 class="snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16">
                                 <picture>
                                     <source srcset="/assets/image/webp/dtorque.webp">
-                                    <img loading="lazy" class="w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 object-contain" src="/assets/image/dtorque.jpg" alt="">
+                                    <img loading="lazy" class="w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 object-contain"
+                                        src="/assets/image/dtorque.jpg" alt="">
                                 </picture>
                             </div>
                         </a>
@@ -72,8 +73,8 @@
                                 <picture class="aspect-video object-cover">
                                     <source srcset="/assets/image/webp/glendinning_sm.webp">
                                     <img loading="lazy" src="/assets/image/glendinning_sm.webp" alt="">
-                                </div>
-                                </picture>
+                            </div>
+                            </picture>
                         </a>
                         <a aria-label="Browse Kohler generators" href="/products/generators/kohler">
                             <div
@@ -105,7 +106,8 @@
                         <a aria-label="Browse Caterpillar engines" href="/caterpillar">
                             <div
                                 class="flex-col snap-center w-40 h-20 md:w-60 md:h-30 lg:w-75 lg:h-35 flex justify-center items-center bg-white rounded-lg p-5 md:p-8 lg:p-16 text-center">
-                                <span style="-webkit-text-stroke: 0.1px black;" class="text-xl font-bold text-[#FFCD11]">CATERPILLAR</span>
+                                <span style="-webkit-text-stroke: 0.1px black;"
+                                    class="text-xl font-bold text-[#FFCD11]">CATERPILLAR</span>
                                 <span class="text-xl font-bold">Engines</span>
                             </div>
                         </a>
@@ -123,7 +125,6 @@
                         </div>
                     </div>
                 </div>
-                <div></div>
                 <div class="flex justify-center animate__animated animate__bounce">
                     <a aria-label="Navigate down to what we do" href="#what">
                         <i class="fa fa-arrow-down text-2xl text-white border-4 px-10 py-2 rounded-full"></i>
@@ -131,71 +132,71 @@
                 </div>
             </div>
         </div>
-        <div class="flex flex-col justify-around p-6 flex-initial rounded-md">
-            <div id="what" class="flex-initial basis-1/2 mb-8 flex gap-4 flex-col md:flex-row mx-5 md:mx-8 lg:mx-10 w-1/3 items-center justify-center border bg-blue-900 border-gray-500 rounded-md">
-                <h1 class="font-serif text-center lg:text-6xl text-white text-3xl md:text-6xl">What We Do</h1>
-                    <span
-                        class="text-slate-100 text-center">
-                        From service to re-powers, diagnostics to overhauls, parts to upgrades, we tailor marine
-                        products to
-                        fit your specific operating needs. ADR is proud to represent products that are reliable, readily
-                        accessible, and serviceable wherever your vessel takes you. Call us and one of our professionals
-                        will help you choose the right product to suit your mission or get you up and running in no
-                        time.
-                    </span>
+        <div class="grid auto-rows-max grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 m-2 md:m-10 lg:-mt-20">
+            <div id="what"
+                class="flex-initial basis-1/2 mb-8 flex gap-4 flex-col md:flex-row mx-5 md:mx-8 lg:mx-24 items-center justify-center md:col-span-2 lg:col-span-3">
+                <h1 class="font-serif text-center lg:text-6xl text-white text-3xl md:text-6xl basis-1/2">
+                    What We Do
+                </h1>
+                <span class="text-slate-100 text-center basis-1/2">
+                    From service to re-powers, diagnostics to overhauls, parts to upgrades, we tailor marine
+                    products to
+                    fit your specific operating needs. ADR is proud to represent products that are reliable,
+                    readily
+                    accessible, and serviceable wherever your vessel takes you. Call us and one of our
+                    professionals
+                    will help you choose the right product to suit your mission or get you up and running in no
+                    time.
+                </span>
             </div>
-            <div class="flex-initial basis-1/2 md:my-8">
-                <div class="flex flex-col lg:flex-row justify-center gap-10 flex-wrap">
-                    <a aria-label="Browse inboard engines" class="flex-initial basis-1/3" href="/products/inboard-engines">
-                        <div style="--image: url('/assets/image/webp/g1.webp');"
-                            class="lazy-background text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg text-white">
-                            <h1 class="font-sans mb-5">
-                                Inboard Diesel Engines
-                            </h1>
-                        </div>
-                    </a>
-                    <a aria-label="Browse outboard engines" class="flex-initial basis-1/3" href="/products/outboard-engines">
-                        <div style="--image: url('/assets/image/webp/outboard.webp');"
-                            class="lazy-background text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
-                            <h1 class="font-sans mb-5">
-                                Outboard Diesel Engines
-                            </h1>
-                        </div>
-                    </a>
-                    <a aria-label="Browse waterjets" class="flex-initial basis-1/3" href="/products/waterjets">
-                        <div style="--image: url('/assets/image/webp/g3.webp');"
-                            class="lazy-background flex-initial h-full w-auto text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
-                            <h1 class="font-sans mb-5">
-                                Waterjets
-                            </h1>
-                        </div>
-                    </a>
-                    <a aria-label="Browse transmissions" class="flex-initial basis-1/3" href="/products/transmissions">
-                        <div style="--image: url('/assets/image/webp/g5.webp');"
-                            class="lazy-background lazy-background flex-initial text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
-                            <h1 class="font-sans mb-5">
-                                Marine Transmissions
-                            </h1>
-                        </div>
-                    </a>
-                    <a aria-label="Browse generators" class="flex-initial basis-1/3" href="/products/generators">
-                        <div style="--image: url('/assets/image/webp/g4.webp');"
-                            class="lazy-background flex-initial text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
-                            <h1 class="font-sans mb-5">
-                                Marine Generators
-                            </h1>
-                        </div>
-                    </a>
-                    <a aria-label="Browse electronics" class="flex-initial basis-1/3" href="/electronics">
-                        <div style="--image: url('/assets/image/webp/g6.webp');"
-                            class="lazy-background flex-initial lg:text-3xl text-xl grid-bg p-20 hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 text-center shadow-lg  text-white">
-                            <h1 class="font-sans mb-5">
-                                Marine Electronics
-                            </h1>
-                        </div>
-                    </a>
+            <a aria-label="Browse inboard engines" href="/products/inboard-engines">
+                <div style="--image: url('/assets/image/webp/g1.webp');"
+                    class="lazy-background text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg text-white">
+                    <h1 class="font-sans mb-5">
+                        Inboard Diesel Engines
+                    </h1>
                 </div>
-            </div>
+            </a>
+            <a aria-label="Browse outboard engines" href="/products/outboard-engines">
+                <div style="--image: url('/assets/image/webp/outboard.webp');"
+                    class="lazy-background text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
+                    <h1 class="font-sans mb-5">
+                        Outboard Diesel Engines
+                    </h1>
+                </div>
+            </a>
+            <a aria-label="Browse waterjets" href="/products/waterjets">
+                <div style="--image: url('/assets/image/webp/g3.webp');"
+                    class="lazy-background flex-initial h-full w-auto text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
+                    <h1 class="font-sans mb-5">
+                        Waterjets
+                    </h1>
+                </div>
+            </a>
+            <a aria-label="Browse transmissions" href="/products/transmissions">
+                <div style="--image: url('/assets/image/webp/g5.webp');"
+                    class="lazy-background lazy-background flex-initial text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
+                    <h1 class="font-sans mb-5">
+                        Marine Transmissions
+                    </h1>
+                </div>
+            </a>
+            <a aria-label="Browse generators" href="/products/generators">
+                <div style="--image: url('/assets/image/webp/g4.webp');"
+                    class="lazy-background flex-initial text-xl lg:text-3xl grid-bg hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 p-20 text-center shadow-lg  text-white">
+                    <h1 class="font-sans mb-5">
+                        Marine Generators
+                    </h1>
+                </div>
+            </a>
+            <a aria-label="Browse electronics" href="/electronics">
+                <div style="--image: url('/assets/image/webp/g6.webp');"
+                    class="lazy-background flex-initial lg:text-3xl text-xl grid-bg p-20 hover:shadow-2xl hover:cursor-pointer hover:-translate-y-1 hover:-translate-x-1 transition-all basis-1/3 text-center shadow-lg  text-white">
+                    <h1 class="font-sans mb-5">
+                        Marine Electronics
+                    </h1>
+                </div>
+            </a>
         </div>
         {{template "footer" .}}
     </div>
