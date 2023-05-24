@@ -5,14 +5,14 @@
     <div class="flex flex-col gap-16 min-h-screen">
         {{template "nav" .}}
         <div class="grid auto-rows-max grid-cols-1 lg:grid-cols-2 mx-5 lg:mx-20 xl:mx-40 md:gap-2 lg:gap-8">
-            <div class="flex flex-col gap-2 text-center lg:text-left">
+            <div class="flex flex-col gap-2">
                 <h1 class="text-5xl font-serif">{{template "locationName" .}}</h1>
                 <p>{{template "locationDesc" .}}</p>
                 <div class="text-lg">
                     {{template "locationContacts"}}
                 </div>
                 <div class="flex flex-col grow gap-4">
-                    <div class="text-xl leading-relaxed">
+                    <div class="text-lg leading-relaxed">
                         <h1 class="text-4xl font-serif mb-2">Address</h1>
                         {{template "locationAddress"}}
                     </div>
@@ -21,7 +21,7 @@
                     </div>
                 </div>
             </div>
-            <div class="flex md:border flex-col p-5 gap-5 text-left rounded-md">
+            <div class="flex md:border flex-col md:p-4 gap-5 text-left rounded-md">
                 <div>
                     <h1 class="text-4xl font-serif">Contact Us</h1>
                     <p>Send a message to this location</p>

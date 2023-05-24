@@ -22,11 +22,11 @@
     }" class="min-h-screen flex flex-col mb-10">
         {{template "nav" .}}
         <div
-            class="flex-initial lg:flex-row flex-col flex justify-between items-center md:mx-5 mt-10 mb-4 rounded-t-md border gap-14 text-center bg-gray-50 p-4">
-            <div class="flex items-center gap-3 basis-1/5">
+            class="flex-initial md:flex-row flex-col flex md:justify-between items-center md:mx-5 mt-10 mb-4 rounded-t-md border text-center bg-gray-50 p-4 gap-4 md:gap-0">
+            <div class="flex items-center gap-3 grow">
                 <a href="/products/{{.DescSlug}}" class="capitalize">{{.Desc}}</a>{{if ne .Title ""}}<i class="fa-solid fa-angle-right"></i><a href="/products/{{.DescSlug}}/{{.TitleSlug}}">{{.Title}}</a>{{end}}
             </div>
-            <div class="flex justify-start items-center relative basis-1/4">
+            <div class="flex justify-start items-center relative basis-1/3">
                 <input @keydown="setURL('q', search)" x-model.debounce.500ms="search"
                     class="text-sm leading-none text-left text-gray-600 px-4 py-3 w-full border rounded border-gray-300 focus:ring-blue-500/50 transition-all"
                     type="text" placeholder="Filter within this page...">
