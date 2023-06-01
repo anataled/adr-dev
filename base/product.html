@@ -8,16 +8,13 @@
             <div class="text-center basis-1/2 bg-gray-50 rounded-r-md border p-4">
                 <picture @click="lightbox = !lightbox" class="animate__animated animate__fadeIn cursor-pointer">
                     <source
-                        :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
-                        type="image/avif">
-                    <source
                         :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
                         type="image/webp">
                     <img class="rounded inline object-center h-auto w-5/6 border shadow-md"
                         :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
                 </picture>
             </div>
-            <div x-data="{tab: 'specs'}" class="flex-initial basis-1/2 text-center justify-around gap-4 flex flex-col">
+            <div x-data="{tab: 'specs'}" class="basis-1/2 text-center gap-4 flex flex-col">
                 <span x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span>
                 <span class="text-slate-700 uppercase font-bold">Summary</span>
                 <template x-for="d in entry.desc.split('\n')">
@@ -72,10 +69,7 @@
     {{template "footer" .}}
     </div>
     <div x-transition.opacity @click="lightbox = !lightbox" class="fixed top-0 left-0 z-50 w-full h-full bg-slate-700/90" x-show="lightbox">
-        <picture class="animate__animated animate__fadeIn w-4/6 mx-auto my-0">
-            <source
-                :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
-                type="image/avif">
+        <picture class="animate__animated animate__fadeIn">
             <source
                 :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
                 type="image/webp">
