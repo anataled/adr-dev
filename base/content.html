@@ -46,38 +46,39 @@
         <div x-data="{ open: false }"
             class="grid md:mx-5 auto-rows-max grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             <template x-for="entry in filtered">
-                <div class="flex justify-evenly w-full flex-col md:border gap-4 p-4 hover:bg-gray-50 transition-all hover:cursor-pointer">
-                    <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug">
-                        <div class="text-center basis-1/4 grow-0 hover:scale-105 transition-all">
-                            <picture class="animate__animated animate__fadeIn">
+                <div class="grid grid-cols-1 grid-rows-2 w-full md:border gap-4 p-4 hover:bg-gray-50 transition-all hover:cursor-pointer">
+                    <div class="text-center hover:scale-105 transition-all h-1/2 w-auto">
+                        <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug">
+                            <picture class="animate__animated animate__fadeIn object-scale-down">
                                 <source
                                     :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
                                     type="image/webp">
-                                <img class="rounded inline object-fit max-h-38 w-auto max-w-full"
+                                <img class="rounded inline object-scale-down w-50 md:w-60 lg:w-70 h-auto"
                                     :src="'/assets/image/product/'+entry.image.split('.').pop()+'/'+entry.image" alt="">
                             </picture>
-                        </div>
-                        <div x-data="{ specs: false, ratings: false }"
-                            class="flex-initial basis-3/4 text-center justify-around gap-4 flex flex-col">
-                            <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><span
-                                    x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span></a>
-                            <span class="text-slate-700 uppercase font-bold">Summary</span>
-                            <template x-for="d in entry.desc.split('\n')">
-                                <p x-text="d" class="leading-loose font-thin"></p>
+                        </a>
+                    </div>
+                    <!--<div x-data="{ specs: false, ratings: false }"
+                        class="text-center gap-4 flex flex-col">
+                    </div>-->
+                    <div class="flex flex-col gap-2 text-center">
+                        <a :href="'/products/'+entry.category+'/'+entry.bslug+'/'+entry.slug"><span
+                                x-text="entry.brand + ' - ' + entry.name" class="text-3xl"></span></a>
+                        <span class="text-slate-700 uppercase font-bold">Summary</span>
+                        <template x-for="d in entry.desc.split('\n')">
+                            <p x-text="d" class="leading-loose font-thin"></p>
+                        </template>
+                        <span class="text-slate-700 uppercase font-bold">Datasheets</span>
+                        <div class="flex gap-5 justify-center text-emerald-500">
+                            <template x-for="file in entry.files.split('\n')">
+                                <div>
+                                    <i class="fa-solid fa-file-pdf"></i>&nbsp;<a target="_blank"
+                                        :href="'/assets/docs/'+file+'.pdf'" x-text="file"
+                                        class="hover:cursor-pointer uppercase"></a>
+                                </div>
                             </template>
-                            <span class="text-slate-700 uppercase font-bold">Datasheets</span>
-                            <div class="flex gap-5 justify-center text-emerald-500">
-                                <template x-for="file in entry.files.split('\n')">
-                                    <div>
-                                        <i class="fa-solid fa-file-pdf"></i>&nbsp;<a target="_blank"
-                                            :href="'/assets/docs/'+file+'.pdf'" x-text="file"
-                                            class="hover:cursor-pointer uppercase"></a>
-                                    </div>
-                                </template>
-                            </div>
                         </div>
-                        <hr class="md:hidden">
-                    </a>
+                    </div>
                 </div>
             </template>
         </div>
