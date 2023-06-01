@@ -51,9 +51,6 @@
                         <div class="text-center basis-1/4 grow-0 hover:scale-105 transition-all">
                             <picture class="animate__animated animate__fadeIn">
                                 <source
-                                    :srcset="'/assets/image/product/avif/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'avif'))"
-                                    type="image/avif">
-                                <source
                                     :srcset="'/assets/image/product/webp/'+encodeURIComponent(entry.image.replace(/png|jpg|gif|jpeg|jfif/gi, 'webp'))"
                                     type="image/webp">
                                 <img class="rounded inline object-fit max-h-38 w-auto max-w-full"
