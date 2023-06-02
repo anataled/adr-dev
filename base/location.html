@@ -11,14 +11,11 @@
                 <div class="text-lg">
                     {{template "locationContacts"}}
                 </div>
-                <div class="flex gap-4">
-                    <div class="text-lg leading-relaxed">
-                        <h1 class="text-4xl font-serif mb-2">Address</h1>
-                        {{template "locationAddress"}}
-                    </div>
-                    <div class="flex grow basis-1/2 md:border flex-col p-5 justify-between items-center gap-5 text-left rounded-md h-10 w-auto">
-                        {{template "locationMap"}}
-                    </div>
+                <div class="text-lg leading-relaxed">
+                    {{template "locationAddress"}}
+                </div>
+                <div class="flex flex-initial basis-1/2 md:border flex-col p-5 justify-between items-center gap-5 text-left rounded-md">
+                    {{template "locationMap"}}
                 </div>
             </div>
             <div class="flex md:border flex-col md:p-4 gap-5 text-left rounded-md">
