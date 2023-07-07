@@ -1,44 +1,26 @@
-var width = document.getElementById('slider').scrollWidth;
-function sleep(time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
-var progress = 0
-var flag = true
-document.addEventListener("touchstart", function (e) {
-    var element = document.getElementById('slider');
+import Swiper from 'https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.mjs'
 
-    if (e.target == element) {
-        flag = false
-    }
-    return true
-}, {passive: true});
-const sb = new ScrollBooster({
-    viewport: document.querySelector('#slider'),
-    scrollMode: 'transform',
-    direction: 'horizontal',
-    emulateScroll: true,
-    lockScrollOnDragDirection: 'all',
-    onClick: (s, ev, mobile) => {
-        const isLink = ev.target.nodeName.toLowerCase() === 'link';
-        if (isLink) {
-            ev.target.click()
-        }
-        flag = false
+const swiper = new Swiper('.swiper', {
+    loop: true,
+    speed: 500,
+    autoplay: {
+        delay: 500,
     },
-    onUpdate: (s) => {
-        if (s.borderCollision.right) {
-            progress = 0
-        }
-    },
-    onPointerDown: (s) => {
-        flag = false
+    breakpoints: {
+        640: { // sm
+            slidesPerView: 2
+        },
+        768: { // md
+            slidesPerView: 3
+        },
+        1024: { // lg
+            slidesPerView: 4
+        },
+        1280: { // xl
+            slidesPerView: 4
+        },
+        1536: { // 2xl
+            slidesPerView: 4
+        },
     }
-
 });
-setInterval(function () {
-    if (!flag) {
-        return
-    }
-    sb.scrollTo({ x: progress * width, y: 0 })
-    progress += 0.125
-}, 3000)

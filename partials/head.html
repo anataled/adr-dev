@@ -1,11 +1,12 @@
 {{define "head"}}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5">
-	<link rel="icon" type="image/x-icon" href="/assets/image/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="/assets/image/favicon.ico">
     <meta name="robots" content="noindex">
     <link rel="stylesheet" as="style" href="/assets/css/animate.min.css" />
     <link rel="stylesheet" as="style" href="/assets/css/main.min.css" />
@@ -45,7 +46,25 @@
     <meta name='twitter:image' content="https://adrpowersystems.com/assets/image/webp/logo.webp">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
     <title>ADR Power Systems</title>
+    <style>
+        .swiper {
+            max-width: 100%;
+            height: 100%; 
+            max-height: 100vw;
+            min-height: 0;
+            min-width: 0;
+            max-width: 100vw; 
+            width: 100%;
+            overflow: hidden;
+        }
+        .swiper-slide > div {
+            height: 100%;
+            max-height: 100vw;
+            min-height: 0;
+        }
+    </style>
 </head>
 {{end}}
