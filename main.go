@@ -3,13 +3,17 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"io/fs"
 	"log"
 	"net/http"
+	"net/smtp"
 	"net/url"
 	"os"
 	"os/signal"
@@ -60,12 +64,13 @@ var (
 	tmpls = make(templateHandler)
 )
 
-var emailTemplate = template.Must(template.New("email").Parse(`
-Subject: {{.Subject}}
+var emailTemplate = template.Must(template.New("email").Parse(`Subject: {{.Subject}}
+
 Name: {{.Name}}
 Phone: {{.Phone}}
 Message: {{.Message}}
-From: {{.Email}}
+Email-back: {{.Email}}
+Origin: {{.Origin}}
 `))
 
 func (th templateHandler) Handler(p string, name string, d any) http.Handler {
@@ -106,6 +111,15 @@ type product struct {
 type contentp struct {
 	Title, Desc, Entries string
 	TitleSlug, DescSlug  string
+}
+
+type turnstileResp struct {
+	Success     bool      `json:"success"`
+	ChallengeTs time.Time `json:"challenge_ts"`
+	Hostname    string    `json:"hostname"`
+	ErrorCodes  []string  `json:"error-codes"`
+	Action      string    `json:"action"`
+	Cdata       string    `json:"cdata"`
 }
 
 func update(ctx context.Context, db *sqlx.DB, shtsrv *sheets.Service) error {
@@ -209,11 +223,35 @@ func turnstileMiddle(next http.Handler) http.Handler {
 			log.Println("error posting to CF:", err)
 			return
 		}
+		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
 			http.Error(w, "bad token", http.StatusBadRequest)
 			log.Println("error from CF:", err)
 			return
 		}
+
+		var tr turnstileResp
+
+		bs, err := io.ReadAll(resp.Body)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusBadRequest)
+			log.Println("error reading body:", err)
+			return
+		}
+
+		err = json.Unmarshal(bs, &tr)
+		if err != nil {
+			http.Error(w, "internal server error", http.StatusBadRequest)
+			log.Println("error unmarshalling:", err)
+			return
+		}
+
+		if !tr.Success {
+			http.Error(w, "bad captcha", http.StatusForbidden)
+			log.Println("failed captcha with codes:", tr.ErrorCodes)
+			return
+		}
+
 		// go next
 		fmt.Println(resp)
 		next.ServeHTTP(w, r)
@@ -222,6 +260,32 @@ func turnstileMiddle(next http.Handler) http.Handler {
 
 func slugToRegular(s string) string {
 	return cases.Title(language.AmericanEnglish).String(strings.ReplaceAll(s, "-", " "))
+}
+
+type loginAuth struct {
+	username, password string
+}
+
+func LoginAuth(username, password string) smtp.Auth {
+	return &loginAuth{username, password}
+}
+
+func (a *loginAuth) Start(server *smtp.ServerInfo) (string, []byte, error) {
+	return "LOGIN", []byte(a.username), nil
+}
+
+func (a *loginAuth) Next(fromServer []byte, more bool) ([]byte, error) {
+	if more {
+		switch string(fromServer) {
+		case "Username:":
+			return []byte(a.username), nil
+		case "Password:":
+			return []byte(a.password), nil
+		default:
+			return nil, errors.New("unknown from server")
+		}
+	}
+	return nil, nil
 }
 
 func main() {
@@ -368,15 +432,48 @@ func main() {
 	r.Handle("/locations/virginia", tmpls.Handler("va", "location", nil))
 	r.Handle("/locations/michigan", tmpls.Handler("mi", "location", nil))
 
+	auth := LoginAuth(os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASS"))
+	host := os.Getenv("EMAIL_HOST") + ":" + os.Getenv("EMAIL_PORT")
+
+	// try to auth with a Client before running the main loop
+	ec, err := smtp.Dial(host)
+	if err != nil {
+		log.Println("could not dial email server:", err)
+		return
+	}
+
+	if ok, _ := ec.Extension("STARTTLS"); ok {
+		config := &tls.Config{ServerName: os.Getenv("EMAIL_HOST")}
+		if err = ec.StartTLS(config); err != nil {
+			log.Println("could not start TLS with email server:", err)
+			return
+		}
+	}
+
+	err = ec.Auth(auth)
+	if err != nil {
+		log.Println("could not auth with email server:", err)
+		return
+	}
+
+	// close the connection and use the builtin smtp SendMail
+	ec.Close()
+
 	r.Handle("/api/form", turnstileMiddle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		d := struct {
-			Subject, Name, Phone, Message, Email string
-		}{}
+			Subject, Name, Phone, Message, Email, Origin string
+		}{Origin: r.Header.Get("Referer")}
+		var redir string
+		if s := r.Header.Get("Referer"); s != "" {
+			redir = s
+		} else {
+			redir = "/"
+		}
+
 		for k, v := range r.Form {
 			if len(v) != 1 {
-				http.Error(w, "bad request", http.StatusBadRequest)
-				log.Println("mmmm not good")
+				http.Redirect(w, r, redir+"?s=false", http.StatusSeeOther)
 				return
 			}
 			switch k {
@@ -396,11 +493,19 @@ func main() {
 		var buf bytes.Buffer
 		err := emailTemplate.ExecuteTemplate(&buf, "email", d)
 		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
-			log.Println(err)
+			http.Redirect(w, r, redir+"?s=false", http.StatusSeeOther)
+			log.Println("error executing email template:", err)
 			return
 		}
-		fmt.Println(buf.String())
+		msg := buf.String()
+		fmt.Println("sending email with contents:", msg)
+		err = smtp.SendMail(host, auth, os.Getenv("EMAIL_USER"), []string{os.Getenv("EMAIL_USER")}, []byte(msg))
+		if err != nil {
+			http.Redirect(w, r, redir+"?s=false", http.StatusSeeOther)
+			log.Println("error sending email:", err)
+			return
+		}
+		http.Redirect(w, r, redir+"?s=true", http.StatusSeeOther)
 	}))).Methods("POST")
 
 	productsr := r.PathPrefix("/products/").Subrouter()
