@@ -17,10 +17,10 @@ const swiper = new Swiper('.swiper', {
             slidesPerView: 4
         },
         1280: { // xl
-            slidesPerView: 4
+            slidesPerView: 6
         },
         1536: { // 2xl
-            slidesPerView: 4
+            slidesPerView: 6
         },
     }
 });
