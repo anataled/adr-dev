@@ -432,34 +432,46 @@ func main() {
 	r.Handle("/locations/virginia", tmpls.Handler("va", "location", nil))
 	r.Handle("/locations/michigan", tmpls.Handler("mi", "location", nil))
 
-	auth := LoginAuth(os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASS"))
+	emailEnabled := os.Getenv("EMAIL_USER") != ""
 	host := os.Getenv("EMAIL_HOST") + ":" + os.Getenv("EMAIL_PORT")
 
-	// try to auth with a Client before running the main loop
-	ec, err := smtp.Dial(host)
-	if err != nil {
-		log.Println("could not dial email server:", err)
-		return
-	}
+	var auth smtp.Auth
+	if emailEnabled {
 
-	if ok, _ := ec.Extension("STARTTLS"); ok {
-		config := &tls.Config{ServerName: os.Getenv("EMAIL_HOST")}
-		if err = ec.StartTLS(config); err != nil {
-			log.Println("could not start TLS with email server:", err)
+		log.Println("enabling email")
+
+		auth = LoginAuth(os.Getenv("EMAIL_USER"), os.Getenv("EMAIL_PASS"))
+		// try to auth with a Client before running the main loop
+		ec, err := smtp.Dial(host)
+		if err != nil {
+			log.Println("could not dial email server:", err)
 			return
 		}
-	}
 
-	err = ec.Auth(auth)
-	if err != nil {
-		log.Println("could not auth with email server:", err)
-		return
-	}
+		if ok, _ := ec.Extension("STARTTLS"); ok {
+			config := &tls.Config{ServerName: os.Getenv("EMAIL_HOST")}
+			if err = ec.StartTLS(config); err != nil {
+				log.Println("could not start TLS with email server:", err)
+				return
+			}
+		}
 
-	// close the connection and use the builtin smtp SendMail
-	ec.Close()
+		err = ec.Auth(auth)
+		if err != nil {
+			log.Println("could not auth with email server:", err)
+			return
+		}
+
+		// close the connection and use the builtin smtp SendMail
+		ec.Close()
+	}
 
 	r.Handle("/api/form", turnstileMiddle(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !emailEnabled {
+			http.Error(w, "form not enabled on this instance", http.StatusInternalServerError)
+			return
+		}
+
 		r.ParseForm()
 		d := struct {
 			Subject, Name, Phone, Message, Email, Origin string
